@@ -1,0 +1,9 @@
+= Hacking Windows =
+
+== Index ==
+
+== Introduction ==
+
+Windows is one of the most common operating system used in workplaces, worker use windows OS to create and operate on sensible data. Windows OS is a big target for attacker and it has different flaws, a lot of flaws are there because of the Windows Backward Compatibility, very often enabled by default. The complexity increases as the time passes causing security problems because the complexity of the backward compatibility sum up with the prolification of new features prone to errors and vulnerabilities. The major factors of risk are: *popularity* and *complexity*. 
+
+There are an average of 70 Microsoft security bulletins for year, in which they explain the vulnerabilities discovered and how to patch them.  With time there was a change in the focus of the attacks within the Window OS, at first the main focus was on Network Services (easy to use and easy exposed to the internet), then when Microsoft fixed network services attackers focused on Kernel Driver, kernal drivers are very difficoult to defend, today the attack target applications: from standard ones, to non standard. 

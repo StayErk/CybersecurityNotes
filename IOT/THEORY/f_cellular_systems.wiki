@@ -1,0 +1,86 @@
+= Index =
+	* [[#GSM Architecture - Lecture 7|GSM Architecture]]
+
+
+== GSM Architecture - Lecture 7 ==
+
+GSM provide a good idea of what is a cellular system. In GSM there is a limited frequency with is 900Mhz, lower frequencies are use for uplink because they have a lesser impact on the mobile device. Center frequencies are spaced 200 kHz, in GSM the gross bitrate per channel is 27.83 Kb/s, two channels are allocated: one for uplink and one for downlink, each pair is used by 8 users using TDMA Frame; on each radio carrier TDMA structure allows us to _create_ up to 8 channels for the transmission of voice encoded at 13Kb/s; each user get a slot on every frame. It's important to note that the slot of the same user are not in the same position in uplink and downlink, allowing correct transmission and receiving. 
+
+=== Other key features ===
+
+We want to avoid to transmit when there are no information to transmit, for example when there is silence: *Discontinous Transmission* during pauses in speech, coded voice transmission is interrupted to reduce interference and energy consumption. The maximum distance supported is 3.5Km: the amount of power needed depends on the distance between the base station and the cell, the optimization of the emission power of the mobile device is done via *Power Control*, which requires a feedback loop that regulates the $Pt$, *Power Control* need continuos communication.
+
+=== Architecture components ===
+
+In high level we can identify:
+
+	* Mobile Equipment: the access logic is on the SIM.
+	* Access Network: Base stations to mobile user. The base station subsystem is composed by the base stations themselves and some intelligent controller like BSC. 
+	* Core Network: Network of mobile operator to Base stations. The Core Network have to interface with outer networks (like internet) via Gateway Routers that interconnects to other protocols. In the Network Subsystem are resent a lot of components like. Here is present also the Operation Maintenance Subsystem.
+
+Some languages: 
+
+	* PLMN: global coverage of cellular operator
+	* MSC/VLR: routing element with database associated with maintains informations about the current users inside a managed covered area. So global area is divided in different location areas. More location area more precision on the location of user, lesser location areas less precision on localization informations.
+	* Location Area: each one has a LAI (location area identifier). Each location area is composed by multiple cells, each Base Station is identified by a BSIC. 
+	  
+	  
+==== Mobile Station ====
+
+Terminal owned by the user, there are different categories of MS, each of them has different transmission power. MS can be multi band, allowing communication on different frequencies. MS can be also multi slots, making able the MS to operate over different channels, in different slots. Only in GPRS technology. A MS is composed by two element: mobile equipment and SIM (Subscriber Identity Module) card that do Authentication, knows the services that the user has payed and intelligent functions. Without SIM card a Mobile Equipment is enabled only to do Emergency Calls.
+
+Element memorized in a SIM card: 
+
+	* Serial number. Uniquely identify SM card and it's owner. 
+	* International Mobile Subscriber Identity. Uniquely identify the user on the network. 
+	* Security authentication a Cyphering information
+	* Temporary Network Information.
+		* LAI
+		* TMSI: temporary mobile subscriber identity, used to present myself when I ask to get access to the service
+	* Info about services
+	* Identification Number
+	* Access Rights
+
+The mobile Equipment is identified by an unique IMEI identifier, used to identify stolen terminal. There is a check, when presenting to the network, that trace stolen device. 
+
+==== Base Station ====
+
+The BSS includes to different kind of devices BTS and BSC.
+
+The BTS is the base transceiver station, has all the components that allow a physical transmission enabling encryption, modulation and coding. A BTS can also Perform frequency hopping; we said that each user has a pair of physical channel for uplink and downlink, when performing Frequency Hopping the latter is not true: a pseudorandom sequence of different frequency is used to transmit increasing security and performance, only the receiver (with a key or a common seed) can correctly receive the information. Frequency Hopping makes also the communication more reliable in case of multipath fading; to work frequency hopping need additional control information. Another task that a BTS has is to perform the link quality: measure the power, and bit error rate on the uplink channel; the measurement are transmitted to the Mobile Station and to BSC. The BTS also broadcast on a control channel all the System Information needed to the MS to operate. One of this control channel is *paging control channel*, needed to locate the current position of a user. A BTS is connected to the BSC via a PCM at 64Kb/s. 
+
+It has a number of Transceiver, and a logical component called BFC that performs synchronization, frequency hopping and computation. In GSM there is an issue on transcoding: GSM voice coding is 13Kb/s, while PCM provides 64Kb/s, the transcoding is performed by the TRAU, component that often is in the BSC, so on each PCM channel 4 13Kb/s flow are multiplexed in 4 16Kb/s streams; so fo each GSM carrier we need 3 PCM channels. 
+
+The BSC is in charge to control multiple BTS, giving them resources, get information about quality of transmission to a given Mobile Station, allocating more resources and channels connecting BSC/BTS in order to initiate a call or perform an handhover. It's a key element for mobility support.
+
+A BSC controls a large number of BTS, it's concerned with management of radio resources. 
+
+=== Network Switching Subsystem ===
+
+Is responsible to do the circuit switching to the mobile user, managing also mobility. It's composed by different elements, like databases that contain temporary info about users (VLR), databases that contains permanent information about a user and temporary info like the VLR currently used by the user (HLR), Authentication Center is associated with the HLR, and...
+
+
+==== Mobile Switching Center ====
+
+is the switching element and also can perform gateway functionalities. A MSC can be reached by fixed user to connect to a mobile station; the call is routed to the GSMC, *continue slide 46*
+
+==== Home Location Register ====
+
+It's a permanent database that stores information to a GMSC, it stores all the informations about a MS ... It's tasks are ... 
+
+==== Visitor Location Register ====
+
+It is a temporary database, that contains a subset of informations about the user present in that are of the network. The user in this case is identified by a TMSI to avoid the transmission of the IMSI
+
+==== Security ====
+
+*slide 52* 
+
+==== Equipment Identity Register ====
+
+It can be used to protect the network from the use of stolen equipment or not complaint to standard. Also it checks if a user has access to all the services he's trying to use. IMEI management is done by EIR and keeps A white list, black list and a grey list. 
+
+==== Operation and Maintenence Subsystem ====
+
+Include the functional units responsible for monitoring the network. Used to perform billing for each user and to check the quality of communication. It's composed by a central center and regional elements (*OMC*), ortogonally there is a *PSC*: personalization Center for SIM
+

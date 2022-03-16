@@ -1,0 +1,35 @@
+= Enumeration =
+
+== Index ==
+
+== SNMP ==
+
+Simple Network Management Protocol, is the de facto standard in network management. 
+
+=== Countermeasures ===
+
+Remove or disable SNMP agents, change the community string to non-default values (in any case it travels in clear text). Also it is important to block TCP and UDP ports 161 at the border of the network, in addition in the intranet restrict the access only to some users. 
+
+Of course the use of SNMP version 3, provides enhanced encryption and auth mechanism, however V1 and V2 are the most common version installed. It's possible to adjust Win NT registry to make SNMP less dangerous (in case of Windows server and MIB)
+
+== BGP, TCP 179 ==
+
+In order to understand BGP, it's important to know how internet is organized.
+
+=== Internet Infrastructure ===
+
+There are tier 1, tier 2 and tier 3 networks. Tier 1 are internet provider that can sell connectivity all over the world without buying it from anyone, are the owners of the real big backbone infrastructure that connect continents; they are fully connected in a mesh topology. Tier 2 ISP can sell connectivity, but sometimes they also buy connectivity; they have an uplink to a tier 1. Tier 3 ISP, only buy connectivity, like Sapienza. 
+
+The above is very reliable  but is also very slow, about 20 years ago IXP (Internet Exchange Point) were introduced, they transform the infrastructure from a Tree-like to a Graph like, IXP can be viewed as enormous layer two switch that produces a lot of improvements on the internet connections. Content producer and Tier 1 ISP are also present in the IXP, causing the need for a way to handle large quantities of traffic. The protocol used in order to switch this huge quantities of data is the BGP. Internet Exchange Points are single point of failure: the internet will work, but extremely slow. 
+
+BGP is a protocol executed among Autonomous Systems, which are identified by an integer number, it is the de facto routing protocol among AS, most of the major organizations use BGP in order to allow an efficient traffic routing. Routes traffic using the AS-number in big chunks. It is an open protocol and very vulnerable, it was used to do Hijacking; it has no encryption, no authentication and so can be used to enumerate a network. *It has no countermeasures*. Given the fact that is a text protocol, telnet can be used to enumerate. 
+
+== Active Directory / LDAP ==
+
+Lightweight Directory Access Protocol, i a directory service for Windows systems, and contains all the information of user, groups and so on on a given Windows domain controller. It is the primary target of an enumeration attack because it has all the information needed. In old version any domain member was capable to enumerate Active Directory. 
+
+=== Countermeasures ===
+
+It is important to filter access to ports 389 and 3268 at the net perimeter to limit the leak of sensible information. There are to different modes of LDAP: Legacy compatible and Native Win 2000, if possible use Native and do not allow Win NT4 Domain Controllers. 
+
+

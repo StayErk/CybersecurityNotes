@@ -2,6 +2,7 @@
 = Cybersecurity notes =
 
 == First year, second semester ==
+	* [[./IOT/index.wiki|IoT]]
 	* [[./ETH/index.wiki|Ethical Hacking]]
 
 

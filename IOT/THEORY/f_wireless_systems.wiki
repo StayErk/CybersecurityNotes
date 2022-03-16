@@ -1,0 +1,84 @@
+= Fundamentals of Wireless Systems =
+
+== Index == 
+
+== Introduction ==
+
+The internet access in the last years is changed, and today is mostly wireless. The wireless medium is different form the wired medium, that is the core of the TCP/IP protocol design. At the beginning wired connection was designed to be a broadcast medium, so it did not need a collision detection control. 
+
+Wireless medium is inherently a broadcast media, so collision avoidance has to be introduced; also there is a security issue: given the fact that the data is broadcasted all over the wireless range anyone can spoof the data transmitted; also Wireless mediums are not reliable, for example the BER is higher than the wired counterpart. 
+
+The datalink layer in case of wireless communication has to be more robust error correction and re-trasmission protocols developed apposing for wireless systems. Also Wireless has to support mobility of the user accounting for an efficient energy consumption. 
+
+=== Reason of Wireless Systems ===
+
+The reason of wireless success are different: first of all no cable is needed, that it is a huge cut in costs because cabling is expensive, also wireless system content to the user to be connected in mobility anywhere and anytime. The success of wireless systems is the consequence of the different implementation done by industry and research. 
+
+== Problems and Aspect of the Broadcast Medium ==
+
+In a broadcast medium there are inherent problems: 
+
+	* *possibility of collision*: in case of two signal colliding the stronger wins (SNR^1^ > SNR^2^)
+	* *security issues*
+	* *higher error rate*
+	
+Wireless medium have limited bandwidth and spectrum capabilities that implies less capacity, so *smart design* are required to give user higher data rates. Another important aspect is the Power Consumption because a lot of devices which uses wireless connection depend on batteries, so the implementation of the TCP/IP stack has to be power efficient. 
+
+=== Power Consumption ===
+
+When considering the aspect of power consumption an important trade off: is it better to perform computation locally or remotely on IoT devices? 
+
+	* *compute locally*: higher power devices, less data transmitted
+	* *compute remotely*: less power devices, higher data transmitted
+
+Latest evolutions suggests the use of Machine Learning capabilities on IoT devices to move the computation on the edge of the network, supporting low latency application and making possible the deploy of devices in location where there is no reliable communication system. 
+
+== Topologies and Models in wireless system ==
+
+There are two main topologies of Wireless Systems: *Infrastructure* and *Ad Hoc*. In the former is present a base station, that is a network element which provides wireless communication to the devices, connected to a wired infrastructure. The latter is a self contained network in which devices are organizes by themselves to permit the exchange of informations. This kind of infrastructure has a lot of use cases in emergency situation. 
+
+Of course the to topologies above are not mutually exclusive, hybrid conditions used a lot in IoT application: some devices act as middle hope (AdHoc) and other devices are connected to a wired network. AdHoc standards are the basic of modern IoT protocols. 
+
+== Transmission Error ==
+
+There are a lot of problem in wireless transmission: *attenuation*, *reflection*, *diffraction* and *multipath*. To implement Forward Error Correction extra rendundant bit are used to detect and correct errors. Another technique used to reduce the retransmitting of packets is *interleaving*. *Interleaving* take into account the fact that bit flipping can happen in bursts, to the percentage of wrong bits is to high to be recovered so *interleaving* schemes divide packets in portions, then the transmission is done in such a manner were portions of different packets are transmitted together adding latency but reducing the rate of re-transmission.
+
+== Medium Access Control ==
+
+The access to a broadcast channel has to be mediated, typically IoT devices aren't full duplex, so carrier sensing is not possible; also the Hidden Terminal Problem represent another difficulty: CSMA/CD cant be used, so CSMA/CA is used.
+
+Considering AdHoc infrastructure data has to pass on intermediate devices that have to support routing, in this setting topology change very frequently, so traditional routing protocols are not very effective. Three things add difficulty to the routing protocols: *mobility*, *link quality* and *node disconnecting and reconnecting*. 
+
+== Elements of Wireless Channel ==
+
+Elements of a wireless channel are transmitter, receiver to modulate the signal to permit the transmission of binary data. Good Modulation permit higher data rate but increase the BER.
+
+It is important to know that a signal attenuate in function of the distance or if some obstacle is on the way. *Reflection* is another problem that happens when the signal meets an object which is larger than the wavelength. *Diffraction* occurs when the signal encounter objects with sharp edges; *scattering* on the other hand happens when the signal passes through object smaller than the wavelength.
+
+All of the above problems change the shape of the original signal decreasing it's quality, but in case of no Line of Sight they permit communication. 
+
+== Mathematical Concepts ==
+
+We assume that antennas are a single point that emits signal uniformly in all direction, in reality antennas are not isotropical, like *dpole* or directional antennas. Directivity is based on the concept of gain that is ever greater or equal than 1. 
+
+=== Geometrical Spreading ===
+
+{{$
+	F = \frac{P_t}{4 \pi d^2}[W/m^2]
+}}$
+
+taking into account the gain we have that:
+
+{{$
+	F = \frac{P^T g^T}{4 \pi d^2} [W/m^2]
+}}$
+
+In case of LOS and no obstacles the power received can be expressed as: 
+
+{{$
+	P_R = P_Tg_Tg_R(\frac{\lambda}{4 \pi d})^2 \frac{1}{L} 
+}}$
+
+where $ \lambda $ is wavelength and $L$ is the hardware loss.
+
+
