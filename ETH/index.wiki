@@ -1,0 +1,16 @@
+= ETH Index =
+
+This page (and the following) contain my personal notes taken during the [[https://sites.google.com/a/di.uniroma1.it/ethical-hacking/|Ethical Hacking Course of Sapienza University]]. 
+
+== Theory ==
+
+== Laboratory ==
+
+	* [[./LAB/HackingUnix.wiki|Hacking Unix]]
+
+
+===== Disclaimer =====
+
+The hacking skills taught in this course can be dangerous if used improperly. Students should be aware of the legal implication of their actions. Unauthorized hacking is a crime, and students who break the law will face possible criminal prosecution.
+
+I take no responsibility for the improper use of technologies, tools and techniques I write about in these pages. Topics are covered for informational and academic purposes.

