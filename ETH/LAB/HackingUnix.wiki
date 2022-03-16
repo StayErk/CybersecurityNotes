@@ -3,7 +3,7 @@
 == Index ==
 
 	* [[#Remote Access|Remote Access]]
-	* Local Access
+	* [[#Local Access|Local Access]]
 
 == Remote Access ==
 
@@ -238,4 +238,61 @@ Use latest version and apply security patches.
 
 == Local Access ==
 
+After the attacker has gained Remote Access, he has to get Local Access; the quest to root continue! In this setting the attacker tries to do a *Privilege Escalation*; he can do it using to techniques: 
 
+	1. [[#Attack the System|Attack the system]] exploiting weak passwords, symlinks or kernel flows.
+	2. Exploit system misconfiguration on file/directory permissions, SUID and so on.
+
+After a successful privilege escalation the attacker need to remain persistent: *Advanced Persistent Threats* using Trojan, Rootkits and Log Cleaner. 
+
+=== Attack the System ===
+
+In this setting the attacker has gain access to the local machine and tries to gain privileges attacking particular element of the system like user's accounts, symbolic links and the kernel. 
+
+==== Weak Passwords ====
+
+Passwords are a security issue if not created properly. Always assume that users are lazy, they will ever use weak, easy to remember, passwords. Passwords requirements, like: "_a password must contain at least 8 digit, symbols, capitals, and numbers_" helps only marginally, consider `P@ssw0rd1" a dictionary attack will break it in a matter of seconds.
+
+===== How passwords works in Unix =====
+
+User's accounts informations are stored in two different files: `/etc/passwd` and `/etc/shadow` ([[https://linuxize.com/post/etc-passwd-file/|more on passwd]],[[https://www.computernetworkingnotes.com/linux-tutorials/etc-shadow-file-in-linux-explained-with-examples.html|more on shadow]]). The former contains a line for each user and each line has the following structure: 
+
+{{{
+	username:x:1021:1021:Username user:/home/username:/bin/bash
+	(1)     :(2):(3):(4):(5)          :(6)           :(7)
+}}}
+
+each line has to be interpreted in the following: 
+
+	1. Username of the user
+	2. Password stub, real hash of the password stored in `/etc/shadow`
+	3. user id
+	4. group id
+	5. User info, like full name, phone (nobody use this)
+	6. Absolute path of home directory
+	7. Absolute path of default shell
+
+the latter contains a line for each user and each line has the following structure:
+
+{{{
+	username:$1$fnfffc$oasdAdoafCaapsdAdpP#7:13064:0:99999:7:::
+	(1)	:(2)				:(3)  :(4):(5):(6):(7):(8)
+}}}
+
+each line has to be interpreted in the following way:
+
+	1. Username
+	2. Hashed password in Modular Crypt Format ([[https://passlib.readthedocs.io/en/stable/modular_crypt_format.html|more on this]])
+		a) separated by dollar sign: id, salt, hash
+	3. last password change
+	4. number of days before change of password is allowed
+	5. number of days before password change is required
+	6. number of days before password expires to warn user
+	7. number of days after password expiration after which account is disabled
+	8. expiration date of account
+
+*Focus on hashed password*. 
+
+===== Tools: John the Ripper =====
+
+[[https://www.openwall.com/john/|John the Ripper]] is a common used tool used to crack hashes. It is used in the local access setting because it automatically handles the MCF format, it's easy to configure and extend and has a good set of mangling rules.
