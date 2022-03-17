@@ -1,0 +1,60 @@
+= Scanning =
+
+When performing *scanning* the first objective is to determine which systems of the target network are alive, then the attacker will determine which services are running or listening and also try to determine which version of the operating system is running. 
+
+== Determining if the system is alive - Ping Sweep ==
+
+The network ping sweep is an easy and fast operation done to figure out if a given system is alive, without any interest to know which services are open. Several tools can be used and different techniques can be applied depending on the settings.
+
+==== ARP Scan ====
+
+If the attacker is somehow within the target organization network ping sweep can be performed with an ARP Scan to determine which systems are alive inside a defined subnet. The tools that can be used are:`arp-scan`, `nmap`, `cain` (Windows only).
+
+==== ICMP packets scan ====
+
+If the attacker is not within the network of the target organization ICMP packets, in particular ICMP echo request/response and ICMP timestamp can be used to determine which systems are alive. Tools used in this setting are: `ping`, `nmap`, `hping3` and `superscan`.
+
+==== TCP/UDP scan ====
+
+Sometimes, however, internal and/or external ICMP is not permitted, so an alternative approach is to use TCP/UDP host discovery. Server have TCP/UDP service ports open, and desktops can accept inbound connection for allowing file sharing services and/or remote desktop. Tools used in this setting are `nmap`, `superscan` and `nping` with proper flags. Note that in this phase of scanning the attacker need only to know if the system is alive.
+
+=== Countermeasures ===
+
+Intrusion Detection Systems and commercial grade firewalls can detect ICMP, TCP and UDP ping sweeps recognizing a pattern of packets from a particular system or network. Host based tools that can be used to help recognizing a Ping Sweep are: `scanlogd`, `courtney`, `ippl` and `protlog`, but it's important to know that *eyeballs counts*: advanced tools are not useful if nobody can recognize that an attack is on going. 
+
+Prevention is also important, set up Access Control Lists in firewall limiting ICMP traffic, allow only ECHO_REPLY, HOST_UNREACHABLE and TIME_EXCEEDED into specific hosts in DMZ, because ICMP echo messages can be used to tunnel data by attacker that use `Loki2`. For a better handling of ICMP packets `Pingd` is suggested because it moves ICMP packet handling from kernel to user space enabling more control over them. 
+
+== Determine Which Services are Running or Listening ==
+
+The next phase of the Scanning process consist on the gathering of informations about the services listening or running on the alive systems. This kind of process is done via the *port scanning* that leads to the identification of: which TCP/UDP services are running on the target, the type of the OS, and applications or version of a particular service.
+
+The tools used are: `nmap` with `-ON -f -D` options to output the result of the command in a human-readable file, fragment packets to pass firewalls and IDS and intermix decoy scans and real scans; or `SuperScan`. 
+
+The attacker, in this phase, exploit in a smart way the functions of the TCP 3-way handshake.
+
+==== 3-way handshake ====
+
+A legit three way handshake is performed, as the name suggest, in three steps in which three TCP packets are sent (very simple explanation, [[https://www.sciencedirect.com/science/article/pii/B9781597499613000030|more details]]):
+
+	1. tcp packet with the SYN bit setted is sent from the client to the server
+	2. server responds with a tcp packet with SYN and ACK bit setted
+	3. finally the client responds with a tcp ACK packet. 
+	   
+{{file:./imgs/3-way-hand.jpg}}
+	   
+An attacker can send carefully crafted TCP packet to probe which ports are open on a give service in different ways: 
+
+	* FULL TCP: slow and easily detectable approach, perform a full TCP 3-way handshake on each port the attacker wants to scan
+	* SYN Scan: the attacker sends only a TCP SYN packet, if the he receive a SYN/ACK packet it meas that the port is open, otherwise it will receive a RST packet. Commonly not detected nor logged by firewalls or IDS. 
+	* FIN Scan: the attacker sends only a TCP FIN packet, that normally is sent by a client to terminate a connection, to it's target. If the port on the target is closed the attacker will receive a RTS packet.
+	* XMAS Tree Scan: it's a more complex type of scan that use a TCP packet with FIN, URG and PUSH bits setted. 
+
+	  
+Knowing which ports are open can give useful informations to the attacker, for example, if port $80$ is open on a given system he can deduct that a Web Server is running on that machine. The same approach can be applied for all the known port numbers.
+
+=== Countermeasures ===
+
+Tools like `snort`, `scanlogd` can be used, and firewalls can be set up in such a way to detect SYN scans. As prevention it's fundamental to disable all unnecessary services and ports. 
+
+== Detecting the Operating System ==
+
