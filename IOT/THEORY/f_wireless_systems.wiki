@@ -1,6 +1,20 @@
 = Fundamentals of Wireless Systems =
 
-== Index == 
+= Contents =
+        - [[#Fundamentals of Wireless Systems|Fundamentals of Wireless Systems]]
+                - [[#Fundamentals of Wireless Systems#Introduction|Introduction]]
+                        - [[#Fundamentals of Wireless Systems#Introduction#Reason of the success of Wireless Systems|Reason of the success of Wireless Systems]]
+                - [[#Fundamentals of Wireless Systems#Problems and Aspects of Broadcast Medium|Problems and Aspects of Broadcast Medium]]
+                        - [[#Fundamentals of Wireless Systems#Problems and Aspects of Broadcast Medium#Power Consumption|Power Consumption]]
+                - [[#Fundamentals of Wireless Systems#Topologies and Models in wireless system|Topologies and Models in wireless system]]
+                - [[#Fundamentals of Wireless Systems#Transmission Error|Transmission Error]]
+                - [[#Fundamentals of Wireless Systems#Medium Access Control|Medium Access Control]]
+                - [[#Fundamentals of Wireless Systems#Elements of Wireless Channel|Elements of Wireless Channel]]
+                - [[#Fundamentals of Wireless Systems#Mathematical Concepts|Mathematical Concepts]]
+                        - [[#Fundamentals of Wireless Systems#Mathematical Concepts#Geometrical Spreading|Geometrical Spreading]]
+                        - [[#Fundamentals of Wireless Systems#Mathematical Concepts#Path Loss|Path Loss]]
+                        - [[#Fundamentals of Wireless Systems#Mathematical Concepts#BER Performance|BER Performance]]
+                        - [[#Fundamentals of Wireless Systems#Mathematical Concepts#Delay Spreading|Delay Spreading]]
 
 == Introduction ==
 
@@ -10,11 +24,11 @@ Wireless medium is inherently a broadcast media, so collision avoidance has to b
 
 The datalink layer in case of wireless communication has to be more robust error correction and re-trasmission protocols developed apposing for wireless systems. Also Wireless has to support mobility of the user accounting for an efficient energy consumption. 
 
-=== Reason of Wireless Systems ===
+=== Reason of the success of Wireless Systems ===
 
 The reason of wireless success are different: first of all no cable is needed, that it is a huge cut in costs because cabling is expensive, also wireless system content to the user to be connected in mobility anywhere and anytime. The success of wireless systems is the consequence of the different implementation done by industry and research. 
 
-== Problems and Aspect of the Broadcast Medium ==
+== Problems and Aspects of Broadcast Medium ==
 
 In a broadcast medium there are inherent problems: 
 
@@ -59,7 +73,7 @@ All of the above problems change the shape of the original signal decreasing it'
 
 == Mathematical Concepts ==
 
-We assume that antennas are a single point that emits signal uniformly in all direction, in reality antennas are not isotropical, like *dpole* or directional antennas. Directivity is based on the concept of gain that is ever greater or equal than 1. 
+We assume that antennas are a single point that emits signal uniformly in all direction, in reality antennas are not isotropical, like *dipole* or directional antennas. Directivity is based on the concept of gain that is ever greater or equal than 1. 
 
 === Geometrical Spreading ===
 
@@ -73,7 +87,7 @@ taking into account the gain we have that:
 	F = \frac{P^T g^T}{4 \pi d^2} [W/m^2]
 }}$
 
-In case of LOS and no obstacles the power received can be expressed as: 
+In case of LOS and no obstacles the power received can be expressed using Friss Equation: 
 
 {{$
 	P_R = P_Tg_Tg_R(\frac{\lambda}{4 \pi d})^2 \frac{1}{L} 
@@ -81,4 +95,91 @@ In case of LOS and no obstacles the power received can be expressed as:
 
 where $ \lambda $ is wavelength and $L$ is the hardware loss.
 
+Of course the receiving power has to be above a certain threshold to make possible the communication, for this reason the ration between the power of the transmitter and the power at the receiver has to be considered. The ratio between $P_T$ and $P_R$ is measured in dB. We use dBm and dbW to express power in case of no ratio. 
 
+=== Path Loss ===
+
+The Path Loss express ratio of Transit power / Receiver power measured dBm:
+
+{{$
+	\text{loss}=\text{transit}-\text{receiver}
+}}$
+
+The path loss increases in function of distance and frequency. The equation of the path loss can be derived from the Friss Equation: 
+
+{{$
+	PL = (\frac{\lambda}{4 \pi d^2})^2 
+}}$
+
+considering $g_T$, $g_R$, and $L$ equal to $1$.
+
+In case of LOS with just one reflection the ratio between $P_T$ and $P_R$ can be expressed as: 
+
+{{$
+	\frac{P_R}{P_T} = g_R g_T (\frac{h_1h_2}{d^2})^2
+}}$
+
+as we can see the ratio of power decades with an additional power of two because of the one reflection. 
+
+The mathematical model can become more and more complicated in real life settings, where a lot of Multipath effects are present; for this reason a lot of empirical studies have been done by researchers. 
+
+With an Empirical Model of the signal complex situations can be approximated using a much simpler formula that accounts for the environment in which the signal takes place. 
+
+{{$
+	P_R = P_Tg_Tg_R(\frac{\lambda}{4 \pi})^2 \cdot \frac{1}{d^\eta}
+}}$
+
+where $\eta$ is the propagation coefficient, typically it is equal to 4 (takes into account a lot of diffraction and reflection) in metropolitan areas and equal to 2 or 3 in rural areas.
+
+In real life typically there is no Line of Sight or single reflection, also there are models that account for signal  in indoor environment. Furthermore multiple paths signal can reach the user at different time and with different phase and level of attenuation so the final signal received is the combination of all the paths, leading to different results if they are in phase or not: 
+
+	* result signal can be attenuated if the multiple paths are not in phase
+
+	* result signal can be amplified if the multiple paths are in phase
+
+{{$
+	f_p(x) = \frac{1}{2\sigma^2}\exp{\frac{-x}{2\sigma^2}} \\
+	\text{ Rayleigh fading power distribution}
+}}$
+
+When the multipath fading is modeled by Rayleigh the received power shows variability in the general signal, this lead to the importance of using a good modelling instrument that can provide a tool to estimate the received power, enabling the computing of the _probability of outage_:
+
+{{$
+	P_{out} = \int_{o}^{phtr} f(p) dp
+}}$
+
+The outage probability is the probability that received power is lower than a given threshold, below it signal cannot be correctly received. Applying right assumptions is fundamental to come up with robust and reliable solutions. 
+
+=== BER Performance ===
+
+It is important to take into account that the Bit Error Rate depends heavily on Signal to Noise Ratio and the modulation used. Some technologies like WiFi are capable of use different modulation to improve the speed or the reliability of the connection; so a trade off between speed and the reliability of the connection has to be done. 
+
+{{file:./imgs/ber_performance.png}}
+
+Using Forward Error Correction performances can be improved; changing coding schemes increase the probability of error correction until a certain BER.
+
+=== Delay Spreading ===
+
+Another effect of the Multipath Fading is the Delay Spreading; it represent the fact that some group of bits are received  with different delays creating an intersimbol interference, so if spreading is to large a signal can arrive partially with following ones. 
+
+{{file:./imgs/intersymbol.jpg}}
+
+The impact of the delay spread can be quantified by computing the root mean square: 
+
+{{$
+	\tau_{RMS} = \sqrt{\frac{1}{\sum_{i=1}^n P_i} \sum_{i=1}^n(\tau_i^2 P_i) - \tau_d^2}
+}}$
+
+with: 
+
+{{$
+	\tau_d = \frac{\sum_{i=1}^n (\tau_i P_i)}{\sum_{i=1}^n P_i}
+}}$
+
+where: 
+
+	* $\tau_i$ is the delay on path $i$
+	* $P_i$ power received on path $i$
+	* $n$ number of paths
+
+*Coherence Bandwidth*, which is a statistical measurement of the bandwidth interval over which the channel is 'flat' is approximated by the inverse of the delay spread, in case of intersymbol interference *equalization* is used introducing complexity in the communication.

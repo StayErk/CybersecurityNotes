@@ -21,9 +21,19 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
+along with this program.  If not, see https://www.gnu.org/licenses/.
 
 
 === Support ===
+If you like my work or simple you find it useful and you want to buy me a coffee:
+
+==== Bitcoin ====
+{{file:imgs/btc.jpg|style="width=150px;height:120px;object-fit:cover;"}}
+
+Address: 1PzkmfsVT3XT2dKGkXfT7vguyERHnXfCJu
 
 
+==== ETH ====
+{{file:imgs/eth.jpg|style="width=150px;height:120px;object-fit:cover;"}}
+
+Address: 0xBE00B8B3A0262cc161b5eb93a0852Df33200C8e5
