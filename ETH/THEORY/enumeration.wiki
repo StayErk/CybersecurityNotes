@@ -1,34 +1,65 @@
 = Enumeration =
 
-== Index ==
+Enumeration is THE phase of the attack that should be detected. It's the most intrusive phase and generate a lot of noise unlike the previous two. The objective of the attacker in this phase are to find and identify all the services and they're version running on the target machines in order to know which vulnerabilities they have in order to exploit them. 
 
-== SNMP ==
+The scope of the Enumeration is smaller than the scope of scanning, in the phase the attacker will focus on a subset of the systems analyzed in the previous phase. The reasons why the scope is smaller are different: 
+
+	* Enumeration can be very time consuming, so focusing on a smaller set of interesting target can be more efficient and effective.
+	* Enumeration processes are very noise, a bigger scope  may bring to easer detection by IDS, firewalls and human operators. 
+
+In this phase the attacker wants to collect: user account names, misconfigured shared file and see if vulnerable version of services are used. To obtain all this informations active connections and interactions have to be performed, so all the activities of the attacker should be logged and IDS and humans _have_ to detect it. 
+
+It's also important to note that enumeration *may bring to further footprinting and scanning*; these steps are not sequential but are iterative: the attacker can perform all of them in different parts of the target network.
+
+Like footprinting and scanning, enumeration is composed of different sub-phases:
+
+	* Service Fingerprinting
+	* Vulnerability Scanning
+	* Basic banner grabbing
+	* Enumeration of common network services
+
+== Service Footprinting ==
+
+The objective of the attacker in this moment is to find which version / patch of the software the services are running. It can be done manually or automatically; there are pros and cons: 
+
+	* Manual 
+		* *pros*: stealth
+		* *cons*: slow
+	* Automatic
+		* *pros*: fast
+		* *cons*: noisy
+
+`nmap` is a great tool that can be used also for automatic service footprinting, two modes are available: *services* mode and *services-probe* mode. The former output an hypothesis of the service running on a specific port using assumptions like: common port numbers and data taken from internal DB of `nmap`, it is _kind of_ passive; the latter mode uses an active approach and is much more precise but a lot more noisy,  `nmap` will probe each open port trying to get the specific service, version and vendor running behind that port. 
+
+
+
+=== SNMP ===
 
 Simple Network Management Protocol, is the de facto standard in network management. 
 
-=== Countermeasures ===
+==== Countermeasures ====
 
 Remove or disable SNMP agents, change the community string to non-default values (in any case it travels in clear text). Also it is important to block TCP and UDP ports 161 at the border of the network, in addition in the intranet restrict the access only to some users. 
 
 Of course the use of SNMP version 3, provides enhanced encryption and auth mechanism, however V1 and V2 are the most common version installed. It's possible to adjust Win NT registry to make SNMP less dangerous (in case of Windows server and MIB)
 
-== BGP, TCP 179 ==
+=== BGP, TCP 179 ===
 
 In order to understand BGP, it's important to know how internet is organized.
 
-=== Internet Infrastructure ===
+===== Internet Infrastructure =====
 
-There are tier 1, tier 2 and tier 3 networks. Tier 1 are internet provider that can sell connectivity all over the world without buying it from anyone, are the owners of the real big backbone infrastructure that connect continents; they are fully connected in a mesh topology. Tier 2 ISP can sell connectivity, but sometimes they also buy connectivity; they have an uplink to a tier 1. Tier 3 ISP, only buy connectivity, like Sapienza. 
+There are tier 1, tier 2 and tier 3 networks. Tier 1 are internet provider that can sell connectivity all over the world without buying it from anyone, are the owners of the real big backbone infrastructure that connect continents; they are fully connected in a mesh topology. Tier 2 ISP can sell connectivity, but sometimes they also buy connectivity; they have an uplink to a tier 1. Tier 3 ISP, only buy connectivity, like GARR. 
 
 The above is very reliable  but is also very slow, about 20 years ago IXP (Internet Exchange Point) were introduced, they transform the infrastructure from a Tree-like to a Graph like, IXP can be viewed as enormous layer two switch that produces a lot of improvements on the internet connections. Content producer and Tier 1 ISP are also present in the IXP, causing the need for a way to handle large quantities of traffic. The protocol used in order to switch this huge quantities of data is the BGP. Internet Exchange Points are single point of failure: the internet will work, but extremely slow. 
 
 BGP is a protocol executed among Autonomous Systems, which are identified by an integer number, it is the de facto routing protocol among AS, most of the major organizations use BGP in order to allow an efficient traffic routing. Routes traffic using the AS-number in big chunks. It is an open protocol and very vulnerable, it was used to do Hijacking; it has no encryption, no authentication and so can be used to enumerate a network. *It has no countermeasures*. Given the fact that is a text protocol, telnet can be used to enumerate. 
 
-== Active Directory / LDAP ==
+=== Active Directory / LDAP ===
 
 Lightweight Directory Access Protocol, i a directory service for Windows systems, and contains all the information of user, groups and so on on a given Windows domain controller. It is the primary target of an enumeration attack because it has all the information needed. In old version any domain member was capable to enumerate Active Directory. 
 
-=== Countermeasures ===
+==== Countermeasures ====
 
 It is important to filter access to ports 389 and 3268 at the net perimeter to limit the leak of sensible information. There are to different modes of LDAP: Legacy compatible and Native Win 2000, if possible use Native and do not allow Win NT4 Domain Controllers. 
 
