@@ -1,3 +1,19 @@
+= Contents =
+        - [[#Scanning|Scanning]]
+                - [[#Scanning#Determining if the system is alive - Ping Sweep|Determining if the system is alive - Ping Sweep]]
+                                - [[#Scanning#Determining if the system is alive - Ping Sweep#ARP Scan|ARP Scan]]
+                                - [[#Scanning#Determining if the system is alive - Ping Sweep#ICMP packets scan|ICMP packets scan]]
+                                - [[#Scanning#Determining if the system is alive - Ping Sweep#TCP/UDP scan|TCP/UDP scan]]
+                        - [[#Scanning#Determining if the system is alive - Ping Sweep#Countermeasures|Countermeasures]]
+                - [[#Scanning#Determine Which Services are Running or Listening|Determine Which Services are Running or Listening]]
+                                - [[#Scanning#Determine Which Services are Running or Listening#3-way handshake|3-way handshake]]
+                        - [[#Scanning#Determine Which Services are Running or Listening#Countermeasures|Countermeasures]]
+                - [[#Scanning#Detecting the Operating System|Detecting the Operating System]]
+                                - [[#Scanning#Detecting the Operating System#Scanning Available Ports|Scanning Available Ports]]
+                                - [[#Scanning#Detecting the Operating System#Banner Grabbing|Banner Grabbing]]
+                                - [[#Scanning#Detecting the Operating System#Stack Fingerprinting|Stack Fingerprinting]]
+                        - [[#Scanning#Detecting the Operating System#Countermeasures|Countermeasures]]
+
 = Scanning =
 
 When performing *scanning* the first objective is to determine which systems of the target network are alive, then the attacker will determine which services are running or listening and also try to determine which version of the operating system is running. 
@@ -58,3 +74,40 @@ Tools like `snort`, `scanlogd` can be used, and firewalls can be set up in such 
 
 == Detecting the Operating System ==
 
+An important additional info that an attacker can gather is which operating system is running on target systems. This kind of information is useful for vulnerability mapping and it can be gathered using one of the following techniques: 
+
+	1. [[#Banner Grabbing|Banner Grabbing]]
+	2. [[#Scanning Available Ports|Scanning Available Ports]]
+	3. [[#Stack Fingerprinting|Stack Fingerprinting]]
+
+(1) and (2) can be done passively or actively, (3) can be performed using the informations gathered in the previous step.
+
+==== Scanning Available Ports ====
+
+It's possible to guess which operating system is running by examine which ports are open. The attacker will use the informations gathered in the previous step, and analyze it.
+
+In Window OS common opened port are 135, 139, 445 and 3389 used for system's specific services.
+
+In Unix based operating systems common open ports are 22 (SSH), 111 (RPC), 2049 (NFS) and others. 
+
+Of course the attacker, using this technique can only make a guess, during Enumeration other techniques can be used to confirm the his hypothesis. 
+
+==== Banner Grabbing ====
+
+Banner grabbing can be performed in an active or in a passive way. In both cases the attacker will exploit the fact that some application, in their banner tell all the informations regard: vendor, version and operating system. The attacker can actively probe the specific application to grab the banner, or can wait listening on the network trying to intercept a banner that was requested by another host.
+
+==== Stack Fingerprinting ====
+
+Stack fingerprinting is a very clever, and interesting way to deduct which Operating System is running on a target machine. Stack Fingerprinting is possible because different vendors implement in different ways the TCP/IP standard creating differences in the header structure and in the behavior of some responses. Sometimes, however, the packets are created directly by applications, and not by the Operating System; for this reason before making an hypothesis a meaningful number of packets has to be analyzed. 
+
+Stack Fingerprinting can be active or passive. In the former the attacker will send a request (multiple indeed), and analyze the header of the response basing his decision on the known differences of implementation of each operating system.
+
+Passive Stack Fingerprinting, on the other hand, do not need that the attacker sends requests to the target machine; it's performed to be stealthy to the IDS and to leave less traces as possible. In this setting the attacker will try to capture packets on the network by using port mirroring. 
+
+An interesting website to look at is [[https://www.phrack.org]].
+
+Some tools used for the detection of the operating system are: `nmmap` (with the `-O` option), and `siphon`. 
+
+=== Countermeasures ===
+
+Use detection tools like: `snort`, `scanlogd` and similar, and prevent this kind of actions by correctly setting `proxy` and `firewalls`.
