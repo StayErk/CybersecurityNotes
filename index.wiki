@@ -1,5 +1,12 @@
+= Stayerk's Cybersecurity Course notes 📚 =
 
-= Cybersecurity notes =
+Hi everyone, when I started this project it was only for myself, then I realized that it might be useful from someone so I decided to publish it here. There isn't planned update hour or any kind of schedule, but I tend to update the content of this website daily as I take notes during classes. 
+
+The content of this website is not related in any kind with any official course documentation, these are just some student's (me) notes; for this reason they can be incomplete, and/or wrong in some parts. However it is in my interest to be more precise as possible so any correction is welcome.
+
+For contact information and for suggestion check the [[#License|license section]] or open a new issue on [[https://github.com/StayErk/CybersecurityNotes|GitHub]].
+
+
 
 == First year, second semester ==
 	* [[./IOT/index.wiki|IoT]]
@@ -7,8 +14,11 @@
 
 
 === License ===
-
-Copyright (C) 2022 Andrea Ercolino andrea.ercolino@stayerk.me ercolino.2022024@studenti.uniroma1.it [[https://github.com/StayErk/CybersecurityNotes|GitHub]]
+{{{
+Copyright (C) 2022 Andrea Ercolino 
+andrea[dot]ercolino[at]stayerk[dot]me 
+ercolino[dot]2022024[at]studenti[dot]uniroma1[dot]it
+https://github.com/StayErk/CybersecurityNotes|GitHub repository of this website
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,10 +32,10 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see https://www.gnu.org/licenses/.
+}}}
 
-
-=== Support ===
-If you like my work or simple you find it useful and you want to buy me a coffee:
+=== Support ❣️===
+If you like my work or simply you find it useful and you want to buy me a coffe:
 
 ==== Bitcoin ====
 {{file:imgs/btc.jpg|style="width=150px;height:120px;object-fit:cover;"}}

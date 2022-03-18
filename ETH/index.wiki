@@ -1,6 +1,6 @@
-= ETH Index =
+= ETH Index 👾 =
 
-This page (and the following) contain my personal notes taken during the [[https://sites.google.com/a/di.uniroma1.it/ethical-hacking/|Ethical Hacking Course of Sapienza University]]. 
+This page (and the followings) contains my personal notes taken during the [[https://sites.google.com/a/di.uniroma1.it/ethical-hacking/|Ethical Hacking Course of Sapienza University]]. 
 
 == Theory ==
 	* [[./THEORY/scanning.wiki|Scanning]]
