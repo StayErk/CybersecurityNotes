@@ -34,6 +34,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see https://www.gnu.org/licenses/.
 }}}
 
+== How did I made this? ==
+
+No complex tools have been used. I was already using [[https://vimwiki.github.io/|vimwiki]] to organize notes, I just export them in HTML and upload the here using `rsync`. For the VPS I use Vultr, if you want to try it and support me use my [[https://www.vultr.com/?ref=8718808|referral link]].
+
 === Support ❣️===
 If you like my work or simply you find it useful and you want to buy me a coffe:
 
