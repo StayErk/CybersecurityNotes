@@ -13,15 +13,14 @@ It's also important to note that enumeration *may bring to further footprinting 
 
 Like footprinting and scanning, enumeration is composed of different sub-phases:
 
-	* Service Fingerprinting
-	* Vulnerability Scanning
-	* Basic banner grabbing
-	* Enumeration of common network services
+	* [[#Service Footprinting|Service Fingerprinting]]
+	* [[#Vulnerability Scanning|Vulnerability Scanning]]
+	* [[#Basic banner grabbing|Basic banner grabbing]]
+	* [[#Enumeration of common network services|Enumeration of common network services]]
 
 == Service Footprinting ==
 
 The objective of the attacker in this moment is to find which version / patch of the software the services are running. It can be done manually or automatically; there are pros and cons: 
-
 	* Manual 
 		* *pros*: stealth
 		* *cons*: slow
@@ -31,7 +30,135 @@ The objective of the attacker in this moment is to find which version / patch of
 
 `nmap` is a great tool that can be used also for automatic service footprinting, two modes are available: *services* mode and *services-probe* mode. The former output an hypothesis of the service running on a specific port using assumptions like: common port numbers and data taken from internal DB of `nmap`, it is _kind of_ passive; the latter mode uses an active approach and is much more precise but a lot more noisy,  `nmap` will probe each open port trying to get the specific service, version and vendor running behind that port. 
 
+== Vulnerability Scanning ==
 
+Vulnerability scanning is performed using a database of known vulnerability signatures, some vulnerability scanners are free to use (`OpenVAS`) and some are not (`Nessus`).  `Nessus` in particular is a very powerful tool that can perform exhaustive scanning enabling the use of Custom plugins.
+
+=== Countermeasures ===
+
+Intrusion Detection Systems can detect Nessus behaviors, and in general they can slow down the scan by redirecting the hackers to softer target or honeypots. It's important to note that credible honeypot are really expensive to maintain. 
+
+== Basic banner grabbing ==
+
+A lot of services put a banner in they're responses at requests. Banner grabbing can be done in a manual or automatic way; using the `telnet` command it's possible to request a banner from a given service:
+
+{{{
+	telnet www.example.com 80
+}}}
+
+On the other hand, `netcat` or `nc` can be used to perform automatic basic grabbing by putting in an input file multiple requests. 
+
+Banners can expose a lot of sensible informations like vendor and version of the software that can be used in combination to a database of known vulnerabilities to perform exploits. 
+
+=== Countermeasures ===
+
+Shut down unnecessary services to limit the amount of vulnerability that an attacker can exploit, and use access control lists. As a measure of prevention do regular audits of the network and try to disable the presentation on vendor and version in the banners.
+
+== Enumeration of common network services ==
+
+=== FTP Enumeration (TCP 21) ===
+
+FTP, File Transfer Protocol, is a protocol used to upload and download files from the Internet. Was very popular before HTTP and today is still used for Web Content Uploading. FTP has some serious security issues, the worst one is the fact that password are sent in clear text. 
+
+FTP servers can also enable anonymous accounts, used for serving public content and the `ftp` command can used to grab the banner of an FTP server. 
+
+==== Countermeasures ====
+
+FTP has to be avoided, better alternatives exists: SFTP and FTPS that are respectively FTP over SSH and FTPS over SSL (little extra: `rsync` is a very good command that can be used to upload content to a web server over an SSH connection). Of course there are the 80' no more, so serve public content over HTTP(S) and disallow anonymous FTP and unrestricted uploading.
+
+=== Telnet ===
+
+Telnet is the ancestor of SSH, unlikely to SSH however no encryption is used so credentials and data are sent in clear text. Another problem of telnet is the fact that it has banners and permits bruteforce username enumeration allowing:
+
+	* System enumeration: telnet displays a banner prior to login that show host's OS and version.
+	* Account enumeration: error codes on unsuccessful logins can leak informations about the validity of the username used. 
+	  
+===== Countermeasures =====
+
+Telnet should be disabled if not particularly needed, use SSH instead; however if Telnet is needed restrict it to proper IP addresses using an ACL and use it through a VPN. It's important to modify / disable banner info and configure the service to force the reconnection between failed login attempts. 
+
+=== SMTP ===
+
+SMTP, Simple Mail Transfer Protocol, is one of the most common email services used. It can be enumerated easily using `telnet` and old versions of it contain a lot of vulnerabilities. The `VRFY` and `EXPN` commands can be sent via a `telnet` client to an SMTP server to enumerate user's account informations: the former confirms if a given mail address is valid, and the latter reveals actual delivery addresses of aliases and mailing lists. These two commands are part of the protocol, so they can't be totally disabled, at most the can be restricted only to certain authenticated users. Automatic tools like `vrfy.pl` can be used to do this kind of enumeration. 
+
+{{file:./imgs/smtp_enum.jpg}}
+
+==== Countermeasures ====
+
+Restrict the usage of `EXPN` and `VRFY` commands, modern versions of `Sendmail` and `Microsoft Exchange` allow this kind of restriction. 
+
+=== DNS Zone Transfers ===
+
+The DNS protocol allow the Zone Transfer for backup reasons: it consists in a dump of the entire content of a given domain zone file; this legit operation can lead to leak of informations that can be further used by an attacker. The `nslookup` command can be used to perform a DNS zone transfer: 
+
+{{{
+	$ nslookup
+	
+	> ls -d logicname.com
+}}}
+
+also `dig` command can perform a DNS zone transfer. Misconfigured DNS can also dump the A and HINFO records that may contains a lot of sensible informations like operative system's version and similar. 
+
+The most common implementation of DNS is `BIND`, the command `dig` can be used to get the version of `BIND` used on the server.
+
+=== DNS Cache Snooping ===
+
+The cache snooping attack exploits the hierarchical constitution of the DNS protocol. If an host do a DNS request for a name `hello.com`, and the DNS server has never received a request for the same name it will ask at the root DNS server, then at the Top level DNS server and then to the authoritative DNS server and the it will cache the results in his memory. If the DNS server receives another request for `hello.com` it will just return the result it has previously cached. 
+
+An attacker can use the `dig` command to check if a given domain name is cahced by a DNS server and use this information to better plan a phishing attack. 
+
+==== Countermeasures ====
+
+Use separate internal and external DNS servers, in such a way to not expose internal targets, restrict zone transfer only to authorized users and limit DNS queries to limit the possibility of cache snooping.
+
+=== TFTP ===
+
+TFTP is inherently an insecure protocol, it runs in cleartext, and no authentication in required. If you know the filename you are good to go, so anyone can grab any file and it's used in routers and VoIP telephones to update their firmware. It's important to check the relative config files to make sure that no misconfiguration it's in place. 
+
+==== Countermeasures ====
+
+Tools such as `TCP Wrappers` can be used to allow only certain clients to access TFTP, and of course the access to the `tftpboot` directory has to be restricted and TCP/UDP port 69 have to be blocked by the border firewall.  
+
+
+=== Finger ===
+
+Finger is a unix utility that was used to show users on a local or remote systems, if enabled. Finger derive most of the info that displays from `/etc/passwd` device, but it also shows which user is logged in and they're idle time giving the attacker a lot of useful information that could be used for social engineering. 
+
+==== Countermeasures ====
+
+To stop this kind of information leaking do not run finger and block port 79 at the firewall. If finger is needed for legacy reason then make sure to use TCP Wrappers to restrict and log finger use. 
+
+=== HTTP ===
+
+Enumerating the make and model of a web server is one of the most common and used enumeration techniques; in fact each time a new vulnerability that affects web servers is discovered the attacker will enumerate HTTP services running searching for a vulnerable system. HTTP HEAD method is a very clean way to elicit banner info. 
+
+{{{
+	$ nc -v www.example.com 80
+	
+	HEAD / HTTP/1.1
+	
+	<banner infos>
+}}}
+
+In the example `nc` tool is used, and the command `HEAD` is provided to the web server. The output of the command is the banner info of the web server. Today this kind of attack is easily detected by IDS, and do not work if the website we want to enumerate uses SSL. Redirecting `nc` command to an SSL proxy or just use `openssl` to perform HTTP enumeration on web servers that use SSL. 
+
+{{{
+	$ openssl s_client -quiet -connect www.example.com:443
+	
+	HEAD / HTTP/1.1
+	
+	<banner infos>
+}}}
+
+Another way to gather useful informations from website is to analyze the comments in the HTML source code, there a lot of automatic tools that Crawl sites and reports vulnerabilities, look for comments, `robots.txt` file and so on; the most common tools user are: `grendel-scan` and `sam spade`. This kind of tools are very slow. 
+
+==== Countermeasures ====
+
+Most common web server implementation (like Apache) allow to change the banner to fool automated malware, in closed source web servers like Microsoft Internet Information Services edit of the banner can be tricky but fundamental. 
+
+=== Microsoft RPC Endpoint Mapper ===
+
+==== Countermeasures ====
 
 === SNMP ===
 

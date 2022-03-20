@@ -4,8 +4,8 @@ In this (and the following) page there are my personal note taken when attending
 
 == Theory ==
 	* [[./THEORY/f_wireless_systems.wiki|Fundamentals of Wireless Systems]]
-	* [[./THEORY/power_efficient_communication.wiki|Power Efficient Communication]]
-	* [[./THEORY/f_cellular_systems|Fundamentals of Cellular Systems]]
+	* [[./THEORY/power_efficient_communication.wiki|Power Efficient Communication]] - to be completed
+	* [[./THEORY/f_cellular_systems|Fundamentals of Cellular Systems]] - lectures ongoing
 
 == Lab ==
 	* Introduction to C++

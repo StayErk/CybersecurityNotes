@@ -2,7 +2,10 @@
 
 This page (and the followings) contains my personal notes taken during the [[https://sites.google.com/a/di.uniroma1.it/ethical-hacking/|Ethical Hacking Course of Sapienza University]]. 
 
+[[./common-ports.wiki|Table of Common ports and services]] - ongoing
+
 == Theory ==
+
 	* [[./THEORY/scanning.wiki|Scanning]]
 	* [[./THEORY/enumeration.wiki|Enumeration]] - to be finished
 	* [[./THEORY/hacking_win.wiki|Hacking Windows]] - lectures ongoing

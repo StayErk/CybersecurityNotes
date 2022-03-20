@@ -1,5 +1,3 @@
-= Fundamentals of Wireless Systems =
-
 = Contents =
         - [[#Fundamentals of Wireless Systems|Fundamentals of Wireless Systems]]
                 - [[#Fundamentals of Wireless Systems#Introduction|Introduction]]
@@ -15,6 +13,8 @@
                         - [[#Fundamentals of Wireless Systems#Mathematical Concepts#Path Loss|Path Loss]]
                         - [[#Fundamentals of Wireless Systems#Mathematical Concepts#BER Performance|BER Performance]]
                         - [[#Fundamentals of Wireless Systems#Mathematical Concepts#Delay Spreading|Delay Spreading]]
+
+= Fundamentals of Wireless Systems =
 
 == Introduction ==
 

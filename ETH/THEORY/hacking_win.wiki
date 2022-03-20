@@ -1,9 +1,80 @@
 = Hacking Windows =
 
-== Index ==
-
 == Introduction ==
 
 Windows is one of the most common operating system used in workplaces, worker use windows OS to create and operate on sensible data. Windows OS is a big target for attacker and it has different flaws, a lot of flaws are there because of the Windows Backward Compatibility, very often enabled by default. The complexity increases as the time passes causing security problems because the complexity of the backward compatibility sum up with the prolification of new features prone to errors and vulnerabilities. The major factors of risk are: *popularity* and *complexity*. 
 
 There are an average of 70 Microsoft security bulletins for year, in which they explain the vulnerabilities discovered and how to patch them.  With time there was a change in the focus of the attacks within the Window OS, at first the main focus was on Network Services (easy to use and easy exposed to the internet), then when Microsoft fixed network services attackers focused on Kernel Driver, kernal drivers are very difficoult to defend, today the attack target applications: from standard ones, to non standard. 
+
+A lot of improvement have been done in Windows to increase the security of the Operating System like: default firewall on hosts, and UAC (User Access Control).
+
+There are two major kinds of attacks: 
+
+	* Unauthenticated attacks: the attacker can try to spoof authentication, guess user credentials or use remote network exploits. The attacker can also try an application vulnerability attack.
+	* Authenticated attacks: this kind of attack is performed by a insider user, that has to escalate privileges to perform malicious actions.
+	
+To countermeasure these kind of attacks Windows has introduced security measures. 
+
+== Unauthenticated Attacks ==
+
+There are four major approaches to conduct a unauthenticated attack: 
+
+	* Authentication spoofing
+	* Network Services
+	* Client Software Vulnerabilities
+	* Device Drivers
+
+The traditional target of Windows attack is the *Server Message Block* (used also by WannaCry) on TCP ports 445 and 139. If the attacker finds that one of the previous ports is open it will surely try to use that. Other popular targets are:  
+
+=== Authentication Spoofing ===
+
+
+==== Password Guessing ====
+
+One simple, but sometimes effective, approach is to try to guess the password, exploiting the fact that people tends to use weak password for laziness. Of course password security policies do not allows high number of tries in a short period of time. 
+
+In case of a large pool of user the attacker will try to guess a password for each user, in a manual or automated fashion, exploiting the fact that the security policy will not be triggered if the attempts are spaced out in time. 
+
+Of course the network administrator can detect this kind of attack if the attacker is not smart enough. Automated tools like `enum`, `Brutus`, `THC Hydra` can be used; but also a simple PowerShell for commands works: 
+
+{{{
+	FOR /F "tokens=1,2*" %i in (credentials.txt) do net use \\targetip
+}}}
+
+where `credentials.txt` is a text file that contains a list of username, password pair to try. Other automatic tools with a GUI are `TSGrinder`, and `Rdeskop` after a patch. 
+
+Techniques that use Machine Learning are now been used, they work really good because ML is very good at learning correlation using as training dataset the leaked password databases; teaching the neural network how human create passwords making possible for a GANN to generate password like human beings do. ([[https://arxiv.org/abs/2105.06165|PassFlow]]), Machine Learning approaches can shortly leads to the end of the _password era_, because it will be trivial for a GANN to guess any human generated password. 
+
+Password databases leaks represents really valuable informations that can speed up password guessing attacks.
+
+===== Countermeasures =====
+
+Use network firewall to restrict access to SMB services and use host resident features of Windows (IPSec filter and Windows Firewall) or disable SMB services.
+
+The enforcing of strong/long password is not every a good idea: if a password is difficult to remember user will write it down. Account lockout threshold and ensure that it applies to the built-in Administrator attack: always check the log and periodically review the Event Logs to ensure that no password guessing attacks have occurred.
+
+`SECPOL.MSC` command will open the Local Security Policy application, in this application it's possible to set password policies and account lockout policies. Password policies software in future will use ML to check if the password is to easy to guess. `Audit Policy` contains all the logs about login, system and account events. There are log analysis tools that can be used on the host side like `Microsoft Dumpel`. 
+
+Complementary Intrusion Detection System can be used. 
+
+==== Importance of hashing passwords ====
+
+In the operating system passwords are not stored in clear text. When a password is chosen, its hash is stored. No trace of the clear text password remains in the system. When a user try to log in, a hash function is applied to the password he enters and is compared with the hash stored in the system. For this reason the attacker will try to sniff the hash of the password. 
+
+==== Eavesdropping on Network Password Exchange ====
+
+The major protocols that are vulnerable to this kind of attack are LM (Lan Manager), Kerberos and, less than the previous ones, NTLM. 
+
+`cain` is a tool used, among other things, to sniff LAN Manager password challenge-response hashes. `cain` sniffs the traffic and show the exchanged hashes; after the retrieving of the hash, `cain` can also try to crack the password, in theory the computation of the inverse of an hash is difficult to compute, but in case of non-salted hashes, rainbow tables can be used. 
+
+===== Rainbow Table =====
+
+Are precomputed table of tuples (password, hash of password), that contains large amount of passwords. The attacker can use them to compute in linear time (to respect with the length of the dictionary) the inverse of an hash.  Today GPUs are so powerful that rainbow tables are not used anymore: hashes are computed in real time thanks to GPU. 
+
+Kerberos is another service that can be sniffed to acquire user password. That's because Kerberos sends a pre-authentication packet which contains a time stamp encrypted with a key derived from the user's password, so offline attacks on that exchange can reveal a weak password; `cain` has an authenticated `MSKerb5-PreAuth` packet sniffer and can perform an ARP poisoning.
+
+Other used tools are: `LCP`, `L0phtcrack` and `KerbSniff`.
+
+===== Countermeasures =====
+
+To disable password sniffing disable LM authentication, instead use extensions like NT LAN Manager which uses salt. Obviously pick good passwords and do not allow dictionary password; also use public key encryption and built-in Windows IPsec to authenticate and encrypt traffic.

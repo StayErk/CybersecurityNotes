@@ -1,3 +1,22 @@
 = Power Efficient Communication =
 
+Energy efficient communication is fundamental where devices that rely on external source of energy. Power is a precious resource that has to be used carefully in IoT and mobile devices, and given the fact that the capacity of batteries is an hard limit to overcome, so low power components and protocols have to be implemented. An aspect that regards particularly IoT devices is the fact that, in some circumstances, energy efficient techniques have to be developed. 
+
+There are two consideration to account for when trying to implement energy efficient designs: *Network Lifespan* and *Energy Efficiency*. 
+
+
+=== Network Lifespan ===
+
+Network lifespan is the time until the first node of the network disconnects because of a dead battery. It's a measure of goodness of the design, longer the Network Lifespan is, more efficient is the design of the protocol. Network Lifespan is important because if a crucial component dies the system will be no capable to function correctly, so our objective is to maximize network lifespan.
+
+
+=== Energy Efficiency ===
+
+Energy Efficiency express how efficiently given tasks are performed, and for given task we mean *communication*, so how much energy is spent to correctly deliver informations. 
+
+The above two metrics affect two different, but important, aspects of a correct energy efficient design that has to account for the following trade-offs:
+
+	* Trade-off between energy used and latency of the communication
+	* Trade-off between reliability and energy consumption compared with other end to end metrics
+
 

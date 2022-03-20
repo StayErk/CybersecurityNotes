@@ -1,0 +1,25 @@
+= Common ports number and services =
+
+Table to facilitate study sessions. 
+
+
+| Protocol | Port Number | Service                       |
+|----------|-------------|-------------------------------|
+| TCP      | 21          | FTP                           |
+| TCP      | 22          | SSH                           |
+| TCP      | 23          | Telnet                        |
+| TCP      | 25          | SMTP                          |
+| UDP      | 53          | DNS                           |
+| TCP      | 69          | TFTP                          |
+| TCP/UDP  | 79          | Finger                        |
+| TCP      | 80          | HTTP                          |
+| TCP      | 135         | Microsoft RPC Endpoint Mapper |
+| UDP      | 137         | NetBIOS name service          |
+| TCP      | 139         | NetBIOS session               |
+| UDP      | 161         | SNMP                          |
+| TCP      | 179         | BGP                           |
+| TCP/UDP  | 389, 3268   | Windows Active Directory LDAP |
+| UDP      | 500         | IPsec or IKE                  |
+| UDP      | 1434        | SQL resolution                |
+| TCP      | 1521, 2483  | Oracle TNS                    |
+| TCP/UDP  | 2049        | NFS                           |
