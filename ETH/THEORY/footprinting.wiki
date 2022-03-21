@@ -1,0 +1,163 @@
+= Contents =
+        - [[#Footprinting|Footprinting]]
+                - [[#Footprinting#Determine the scope of your activities|Determine the scope of your activities]]
+                - [[#Footprinting#Get proper authorization|Get proper authorization]]
+                - [[#Footprinting#Publicly available information|Publicly available information]]
+                                - [[#Footprinting#Publicly available information#Company Web Page|Company Web Page]]
+                                - [[#Footprinting#Publicly available information#Related Organizations|Related Organizations]]
+                        - [[#Footprinting#Publicly available information#Location Details|Location Details]]
+                                - [[#Footprinting#Publicly available information#Location Details#Employee Informations|Employee Informations]]
+                                - [[#Footprinting#Publicly available information#Location Details#Current Events|Current Events]]
+                                - [[#Footprinting#Publicly available information#Location Details#Privacy / Security policies|Privacy / Security policies]]
+                                - [[#Footprinting#Publicly available information#Location Details#Archived Informations|Archived Informations]]
+                                - [[#Footprinting#Publicly available information#Location Details#Search Engine (Google Hacking)|Search Engine (Google Hacking)]]
+                                - [[#Footprinting#Publicly available information#Location Details#Countermeasures|Countermeasures]]
+                - [[#Footprinting#WHOIS and DNS Enumeration|WHOIS and DNS Enumeration]]
+                                - [[#Footprinting#WHOIS and DNS Enumeration#Domain Related Searches|Domain Related Searches]]
+                                - [[#Footprinting#WHOIS and DNS Enumeration#IP related searches|IP related searches]]
+                        - [[#Footprinting#WHOIS and DNS Enumeration#DNS Interrogation|DNS Interrogation]]
+                                        - [[#Footprinting#WHOIS and DNS Enumeration#DNS Interrogation#Determine Mail Exchange Records|Determine Mail Exchange Records]]
+                                - [[#Footprinting#WHOIS and DNS Enumeration#DNS Interrogation#Countermeasures|Countermeasures]]
+                - [[#Footprinting#Network Reconnaissance|Network Reconnaissance]]
+                        - [[#Footprinting#Network Reconnaissance#Countermeasures|Countermeasures]]
+
+= Footprinting =
+
+Footprinting is the first phase an attacker has to perform before starting the real attack. Footprinting is the action of gather useful informations about the target without interacting directly with it. The systematic and methodical footprinting  of an organization enables the attacker to create a near complete profile picture of the organization's security. 
+
+Footprinting is performed using different tools and techniques and it's performed in different sub-phases, and can lead to reduce an organization to a specific range of domain names, networks blocks, subnets, routers and IP addresses.It's important to perform the footprinting of your own organization, to be able to know what the hacker sees, and if you know what informations he can see you know what are the potential security exposures present.
+
+The steps to correctly perform an Internet Fooprinting are: 
+
+	* Determine scope of your activities
+	* Get proper authorization (this phase is performed only by ethical hackers of course)
+	* Publicly available information
+	* WHOIS and DNS Enumeration
+	* DNS Interrogation
+	* Network Reconnaissance
+
+== Determine the scope of your activities ==
+
+The first thing to do is to determine which are the boundaries of the footprinting activity.
+
+== Get proper authorization ==
+
+It's fundamental to make sure to have all the proper authorizations to perform fooprinting and following phases as an Ethical Hacker.
+
+== Publicly available information ==
+
+There is a huge amount of public information that regards many aspect of an organization, and this kind of informations can be used to pursue Social Engineering and phishing attacks. The first place useful to retrieve public information on a given target is, obviously, the target Web Page.
+
+==== Company Web Page ====
+
+Sometimes a website provides excessive amounts of information that can aid attackers, and sometimes informations that are not meant to be public are just buried in HTML comment inside the pages, so an offline analysis of the website source code can lead to useful informations. Some tools that can be used for mirror websites are: `wget` (UNIX) and `Teleport Pro` on Windows. 
+
+It's important to know that not all the files are indexed by search engines, brute-force techniques can be used to enumerate all the content on a web server; `DirBuster` is a tool that can automatically enumerate hidden files and directories of a given web server. Of course this kind of brute-force enumeration is extremely noisy. 
+
+Another source of useful informations is the other websites beyond the main `http://www.` and `https://www.` in fact hostnames such as: `www1`, `test1`, `owa` or `outlook` can contain resources to handle the access to internal resources via a web browser. A lot of companies use VPNs, so sites like `vpn.something.org` can reveals useful informations about the VPN vendor and software, how to download and setup the VPN client, and contact informations of technical support. 
+
+==== Related Organizations ====
+
+It's important to look out for links or references to other organizations that are related to the target. Find informations about related organizations is important because sometimes even if the target is strict on which informations are posted, its partners are not as security-minded. Related organizations can reveal additional details. 
+
+=== Location Details ===
+
+Real life location details can be used by an attacker to pursue a social engineering attack or to gather more informations through dumpster diving and surveillance, and in some cases can lead to an authorized access to the buildings. Famous web services, like google map street view, record and track any WiFi network SSID and their associate MAC address. This kind of information can be used to triangulate the location of an individual with precision ([[https://www.youtube.com/watch?v=fWk_rMQiDGc|more on this]]). 
+
+==== Employee Informations ====
+
+Contact names and e-mail addresses are very useful informations for an hacker to known when trying to access to system resources, perform a social engineering attack or to obtain other info; for example telephone numbers can lead to physical address. Personal details can be gathered using social media, career management sites and family ancestry sites. There are also payed services like `jigsaw.com` which purpose is to sell employee information for market reasons. Given enough informations, attackers can build a matrix of data points that can lead to reveal much of the target's configuration and vulnerabilities. Data mining tools like `maltego` can sifting trough a lot of information sources and draw relationship maps between all the data point collected.
+
+Employees CVs and Job requests are another source of interesting informations, they can include sensitive informations about technologies and software used for security, network management and so on. Another real treat for an organization is represented by ex-employees that can distribute sensitive informations about the internal organization. 
+
+==== Current Events ====
+Merges, acquisitions, scandals, layoffs, rapid hiring and outsourcing may provided clues and/or opportunities to the attackers; during this type of events security is placed in the back burner, and morale of the employees is fairly low so they might spend time doing other activities that update security of the system. A most important aspect is derived by the fact that if a company is publicly traded informations about the current events are widely public available. 
+
+==== Privacy / Security policies ====
+
+Any kind of documents that provide information of insight security policies of the target is obviously useful for the attacker. 
+
+==== Archived Informations ====
+
+Web archives like [[http://web.archive.org|archive.org]] can store informations no longer available from the original source for security reasons. 
+
+==== Search Engine (Google Hacking) ====
+
+Advance capabilities of search  engines can be used to find easily a lot of sensitive informations. For example `allinurl:tswev/default.htm` query on Google reveals Microsoft Windows servers with remote desktop web connection exposed; in general there are hundreds of searches that reveal everything fro exposed web cameras  to remote admin services and passwords of databases. Tools like `Athena`, `SiteDigger` and `Wikto` can automatically search google's cache to find misconfigured services, vulnerabilities and errors. 
+
+Metadata of files stored on a website can lead to additional useful informations, tools like `Foca` can identify and analyze metadata informations and compute a summery of the result obtained, much of the `Foca` features rely on the power of [[https://www.shodan.io/|SHODAN]] search engine: a search engine designed to find internet-facing systems and device that use potentially insecure mechanism for authentication and authorization. 
+
+Search engines can also be used to find forums and discussion groups in which system administrators ask for advice regarding a specific problem. An attacker can earn the trust of an admin by helping him out with his issue and in the meanwhile acquire sensitive informations. `Maltego` is also used for mine and link relevant pieces of information on a particular subject to automate this process. 
+
+
+==== Countermeasures ====
+
+Most of the discussion of Public Available information regards info that must be made public, therefore, is hard to remove. However it is important to evaluate and classify the informations that a possible attacker can gather from public available sources; another possible countermeasure is to use aliases that do not maps back to the organization when using mailgroups and forums.
+
+
+== WHOIS and DNS Enumeration ==
+
+The management of the internet domain names, IP address numbers and protocol parameter / port numbers is fairly centralized, but the actual data is spread across the globe in numerous WHOIS servers for technical and political reasons, also WHOIS syntax can vary from server to server. Domain related items are registered separately from IP-related items, so two different paths have to be taken to get as many information as possible:
+
+	1. domain related searches
+	2. ip related searches
+
+==== Domain Related Searches ====
+
+The first thing to do is to determine which one of the WHOIS server contains the informations We're looking for, to find it we have to follows the following procedure:
+
+	* the authoritative *Registry* of a given TLD like `.com` contains informations about which *registrar* has registered the target domain name
+	* a query to the appropriate *registrar* gives detailed informations about the *registrant* we are looking for.
+
+registrant detail provides: physical address, phone number, names, e-mail addresses, DNS server names, IPs and so on. `SuperScan`, `NetScan Tools pro` and a simple web browser can be used to perform a domain related search. 
+
+==== IP related searches ====
+
+IP-related issues are handled by the various RIRs under ACO, each RIR knows which IP range it manages, so the attacker needs to pick one RIR and ask to it, if it's the wrong one it will tell which RIR query. It's possible also to find out IP ranges and BGP autonomous system numbers that an organization owns by searching the RIR WHOIS servers for the organization's name. 
+
+The administrative contacts are an important piece of information because they can tell which person is in charge of the internet connection, or firewall and their phone number and other contacts. This kind of information can be used for social engineering attacks or phishing. Another hazard with domain registration arises from the fact that some registrars allow update of the informations using NetworkSolutions, NetworkSolutions identify the domain registrant identity using the Guardian method, which uses three different kinds of identification:
+
+	1. FROM field in e-mail: not safe, anyone can forge an e-mail address and change the information associated with the domain.
+	2. Password: medium
+	3. PGP key: best
+
+To avoid leak of sensible information use anonymity features offered by the domain name provider. 
+
+=== DNS Interrogation ===
+
+After the identification of all the associated domains, the attacker can query the DNS. DNS is a distributed database used to map IP addresses to hostnames. If the DNS is configured insecurely can reveal information about the organization; the worst misconfiguration possible is allowing untrusted *DNS zone transfer* that can lead to: 
+
+	* Significant information gathering
+	* Can lead to attacks that are not possible without the informations acquired with it
+	* It's a common misconfiguration
+
+Practically a *zone transfer* allows a secondary master server to update its zone database from the primary master; this feature provides redundancy when the primary master DNS is not running. In normal circumstances a DNS zone transfer should be performed only by secondary master DNS servers but a misconfiguration can permit everyone to perform it. The real problem of zone transfer occurs when an organization do not use public / private DNS mechanism to segregate its external DNS information from its internal, private, DNS information providing internal hostnames and IP addresses to the attacker. A simple way to perform a *zone transfer* is with the `nslookup` tool or the unix `dig` command.
+
+If the DNS zone transfer is not allowed the attacker can try a DNS brute-force (`Jabra`) to enumerate DNS entries. 
+
+A DNS zone database contains different records for each host: 
+
+	* *A* records denote the IP address of the hostname (required)
+	* *HINFO* record that identifies the platform or type of operating system running (optional)
+
+If there are subdomain the same `nslookup` query has to be performed. Automatic tools are `host`, `SamSpade` and `dig`.
+
+===== Determine Mail Exchange Records =====
+
+Determining where email is handled is a great starting place to locate the target organization's firewall network because commonly MX is located in the same system in which the firewall is. 
+
+==== Countermeasures ====
+
+To countermeasure DNS interrogation *zone transfer* has to be allowed only for specific users, and on the network side firewall has to deny all the unauthorized inbound connections to TCP port 53 because zone transfer requests uses TCP where name lookup uses UDP (violates RFC). External name server have to provide information only about systems directly connected to the internet and never divulge internal network informations. Lastly is important to limit the use of HINFO records.
+
+== Network Reconnaissance ==
+
+After the identification of potential networks, an attacker can attempt to determine their topology as well as potential access paths. To accomplish this task `traceroute` command can be used. It is a diagnostic tool that lets view the route that an IP packet follows from one host to the next. It works using the TTL field of an IP packet to elicit an ICMP TIME_EXCEEDED message from each router. `traceroute` can so used for identify the network topology and perhaps identify access control devices that may be filtering traffic.
+
+Because TTL value used in `traceroute` is in the IP header, TCP, UDP and ICMP packets can be used, allowing the packets to pass through firewalls that blocks ICMP packets. 
+
+*continue here*
+
+=== Countermeasures ===
+
+Many of the commercial IDS and IPS detect this type of network reconnaissance, also `snort` can detect it. Furthermore, depending on the security paradigm, border routers can be configured to limit ICMP and UDP traffic to specific systems.
