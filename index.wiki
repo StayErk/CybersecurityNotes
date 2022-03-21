@@ -42,12 +42,12 @@ No complex tools have been used. I was already using [[https://vimwiki.github.io
 If you like my work or simply you find it useful and you want to buy me a coffe:
 
 ==== Bitcoin ====
-{{file:imgs/btc.jpg|style="width=150px;height:120px;object-fit:cover;"}}
+{{file:imgs/btc.jpg|bitcoin qr|style="width=150px;height:120px;object-fit:contain;"}}
 
 Address: 1PzkmfsVT3XT2dKGkXfT7vguyERHnXfCJu
 
 
 ==== ETH ====
-{{file:imgs/eth.jpg|style="width=150px;height:120px;object-fit:cover;"}}
+{{file:imgs/eth.jpg|eth qr|style="width=150px;height:120px;object-fit:contain;"}}
 
 Address: 0xBE00B8B3A0262cc161b5eb93a0852Df33200C8e5

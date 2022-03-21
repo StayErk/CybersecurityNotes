@@ -5,7 +5,8 @@ This page (and the followings) contains my personal notes taken during the [[htt
 [[./common-ports.wiki|Table of Common ports and services]] - ongoing
 
 == Theory ==
-
+	
+	* [[./THEORY/footprintingFootprinting]]
 	* [[./THEORY/scanning.wiki|Scanning]]
 	* [[./THEORY/enumeration.wiki|Enumeration]] - to be finished
 	* [[./THEORY/hacking_win.wiki|Hacking Windows]] - lectures ongoing
