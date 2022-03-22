@@ -38,7 +38,7 @@ In case of a large pool of user the attacker will try to guess a password for ea
 Of course the network administrator can detect this kind of attack if the attacker is not smart enough. Automated tools like `enum`, `Brutus`, `THC Hydra` can be used; but also a simple PowerShell for commands works: 
 
 {{{
-	FOR /F "tokens=1,2*" %i in (credentials.txt) do net use \\targetip
+FOR /F "tokens=1,2*" %i in (credentials.txt) do net use \\targetip
 }}}
 
 where `credentials.txt` is a text file that contains a list of username, password pair to try. Other automatic tools with a GUI are `TSGrinder`, and `Rdeskop` after a patch. 
@@ -78,3 +78,101 @@ Other used tools are: `LCP`, `L0phtcrack` and `KerbSniff`.
 ===== Countermeasures =====
 
 To disable password sniffing disable LM authentication, instead use extensions like NT LAN Manager which uses salt. Obviously pick good passwords and do not allow dictionary password; also use public key encryption and built-in Windows IPsec to authenticate and encrypt traffic.
+
+==== Man in The Middle ====
+
+The attacker is in between the client and the server, and it's capable to intercept every packet the client and the server exchange in a transparent way: the attacker can just relay the messages or inject them. In windows the SMBRelay and the SMBproxy  pass authentication hashes along, to get authenticated access to the server, a man in the middle can perform to different attacks that are performed by the attacker pretending to be the client with the server and to be the server with the client playing with the authentication hashes. 
+
+	* SMB credentials reflection attack: the attacker target the client machine.
+	* SMB Credential forwarding attack: the attacker try to use the informations gained during the Man in the Middle attack to target other machines in the organization. This is a kind of lateral movement attack, and its based on the credentials that the attacker is capable to get to acquire access other services.
+
+SMB is used commonly inside organizations for file sharing, for this reason it is an easy and common target. 
+
+`cain` is an important tool that can be used to perform man in the middle attack, because it integrates a lot of functionalities like: password sniffing, password cracking, dictionary attacks, rainbow tables attack and ARP poisoning. ARP poisoning enable the attacker to redirect the flow of the communication from the client machine to its own in a switched network. `cain` can also downgrade the authentication features of a Remote Desktop Server pretending to be a client with an older version of the Remote Desktop client (retro-compatibility of Windows) exploiting vulnerabilities present in old protocols. `cain` can also perform MITM attack against Kerberos service. 
+
+===== Countermeasures =====
+
+MITM attacks have to be prevented with multi-layer security, because they are very destructive and difficult to stop when performed. 
+
+If an attacker in inside the Local Area Network it's very difficult to countermeasure a MITM attack, to limit the risk of this kind of attacks it's important to use authenticated and encrypted protocols enforcing them with Group Policy and firewall rules. It's also suggested to verify identity of remote servers with strong authentication or trusted third parties (like _public key authentication_ and _digital signatures_). Another countermeasure useful to limit MITM attacks is to disable NetBIOS Name Services. 
+
+==== Pass-The-Hash ====
+
+One of the popular attack on windows machines is *pass-the-hash*, it is composed by different steps and can be performed when the attacker is inside the network:
+
+	1. compromise a machine
+	2. dump password hashes stored in RAM, some servers cache the last authenticated user's hash of credential for optimization purposes.
+	3. the attacker can use them as credentials for other network services without crack them
+
+this kind of attack can compromise a windows domain with just compromising one machine, leading to a possible recursive attack. Sometimes the hash of the administrator credentials can be found, allowing the attacker to perform escalation. The attacker can also ambush the administrator in logging into a given server crashing a service an waiting his login to dump the hash. 
+
+This kind of attack is difficult to perform, but there are tools to perform it: `Windows Credentials Editor`, useful to check if an hacker can perform this attack on a given machine. `WCE` can dump in memory credentials of logon session with usernames and domain. 
+
+
+====== Implementation of LSAEncryptMemory ======
+
+Some of old windows services do not use hash of password but encrypt them, so in order to verify the password (for login) the OS need to store the encryption key in RAM, `WCE` can easily dump the encryption key of the password to allow the attacker to retrieve the clear text password. 
+
+==== Pass-The-Ticket ====
+
+Kerberos service can be exploited dumping Kerberos RAM ticket and re-use them, in the same way of *Pass-the-hash* attack. Of course also this kind of attack is viable only if the attacker has compromised the host machine. 
+
+===== Countermeasures =====
+
+NTLM is vulnerable by design, so no fixes are possible, so prevention mechanisms are needed to prevent this post-exploitation technique; a possible prevention technique is 2FA, that can defend from unauthorized logins. 
+
+=== Remote Unauthenticated Exploits ===
+
+Exploit some of the vulnerabilities present on major components of the operating system like kernel and also applications The target are: 
+
+	* misconfiguration in Windows software like TCP/UDP services, driver interfaces and user-mode application (office, internet explorer and so on).
+
+`metaesploit` is the main tool used to perform this kind of exploits, it is a complete framework with gui and cli that use an archive of exploits and modules allowing to easily perform remote unauthenticated attacks knowing only the IP address and which service to exploit. Databases of exploits used by `metaesploit` is two months behind the official Microsoft security bullets. 
+
+Microsoft services were the main target of the attacks, after fixes the attackers focused on the device drivers because they are not written by Microsoft and can have vulnerabilities that can be exploited. 
+
+==== Countermeasures ====
+
+It's important to quickly apply patches, if a service is unpatched or legacy workarounds have to be used (disable services, use Access Control Lists and so on). To prevent and spot attacks it's important to audit, log and monitor traffic. Computer Security Incident Response Teams has to be formed to prevent, response and mitigate a cyber attack; it is an heterogeneous
+team composed by technical, law, and public relationships people that should be ready before a cyber attack with a solid response plan.
+
+The response plan is a complicated set of procedures and action to be taken where a cyber attack take place, there are specialised companies that provide response plans and Computer Security Incident Response Teams for other organizations. 
+
+==== End User Application Exploits ====
+
+End users are the weakest link of the chain, most of the time end users are not technically capable and use complex application software, the combination of the to can easily lead to attacks: user data and user credentials are both managed by the application. Usually application software are not under observation of the IT department and security department, also the implementation of end user application is focused on security but in providing features.
+
+	* Flash Player was a common target of attacks
+	* Adobe PDF reader also had a lot of vulnerabilities officially acknowledged
+
+[[https://nvd.nist.gov/|National Vulnerability Database]] contains a list of vulnerabilities that affects end user applications, interestingly vulnerabilities of some software increases year after year. 
+
+===== Countermeasures =====
+
+Configure firewall in all machines to limit outbound connections, so even if the machine is compromised the attacker can't infiltrate. Of course keep updated all the software and use antivirus (to limit intrusions performed using basic or well known malwares). Another security procedure is to not run end user applications with administrator privileges, read email in plain-text and limit macro in MS Office or run them is a security layer (limiting the damage that they can perform).
+
+=== Device driver exploits ===
+
+Device drivers are a major target of attacks, a famous vulnerability was a buffer overflow in a wireless device's driver that could be exploited using a simple beacon frame allowing a remote administrator shell. Device driver vulnerabilities are possible for different reasons, first of all driver software is written by third companies and is written to be plug and play: software runs at kernel level with administrator privileges, compromising one driver lead to compromise of the entire system. 
+
+==== Countermeasures ====
+
+First of all apply vendor patches, and disable wireless networking at high concentration of Aps or in high risk environment. Be sure to use signed trusted drivers, but be aware that signed drivers might be no carefully tested ([[https://www.secuneus.com/eternal-blue-exploit-windows-vulnerability-ms17-010/|eternal blu vulnerability]]). User mode driver framework is a wall defined interface used to write drivers provided by the Windows operating system that enforce driver developers to use system calls already implemented by the kernel to limit code that can lead to vulnerabilities. 
+
+== Authenticated Attacks ==
+
+In this phase, the attacker has obtained user account for at least one machine in the network, and he try to became administrator or SYSTEM of that machine (_privilege escalation_). In windows tools that can be used to perform a privilege escalation are generally called `getadmin`, `getadmin.exe` was a early exploit used to became system administrator.
+
+==== SYSTEM Status ====
+
+System status is an additional status in windows machine, it is more powerful than the Administrator account. The administrator can schedule tasks to be performed as SYSTEM. 
+
+=== Countermeasures ===
+
+To prevent privilege escalation it's important to keep Windows machine patched and to restrict interactive logon to trusted account by running security policies on critical systems (_no guest account_), ever assume that every interactive logon is possibly an Administrator login. Check `secpol.msc` to view local policies and deny logon locally.
+
+Suppose that the attacker manages to acquire the Administrator status; his next step is to penetrate deeper into the network so he will try to crack and acquire password and to perform post-exploitation operations like disabling the local firewall. 
+
+=== Dictionary attack ===
+
+Dictionary attacks use a "_dictionary_", set of words, at which is applied the same hash function used by the operating system and then the hashes are compare with the user's password hash. When a match is found the plain text password is obtained. The attacker to perform this attack *trade space with time: exponential space with linear time solution*, the hash salt makes less feasible the attack increase the space needed. Today the hash power of GPUs permit to perform this kind of attack online, without the need of sacrifice space speeding the attack. Machine Learning dictionary attacks may be more efficient because they can generate passwords by correlation as human being would do creating dictionaries.  
