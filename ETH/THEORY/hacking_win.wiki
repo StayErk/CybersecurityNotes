@@ -175,4 +175,116 @@ Suppose that the attacker manages to acquire the Administrator status; his next 
 
 === Dictionary attack ===
 
-Dictionary attacks use a "_dictionary_", set of words, at which is applied the same hash function used by the operating system and then the hashes are compare with the user's password hash. When a match is found the plain text password is obtained. The attacker to perform this attack *trade space with time: exponential space with linear time solution*, the hash salt makes less feasible the attack increase the space needed. Today the hash power of GPUs permit to perform this kind of attack online, without the need of sacrifice space speeding the attack. Machine Learning dictionary attacks may be more efficient because they can generate passwords by correlation as human being would do creating dictionaries.  
+Dictionary attacks use a "_dictionary_", set of words, at which is applied the same hash function used by the operating system and then the hashes are compare with the user's password hash. When a match is found the plain text password is obtained. The attacker to perform this attack *trade space with time: exponential space with linear time solution*, the hash salt makes less feasible the attack increasing the space needed and so its presence slow the attack. Salts are stored in clear text in the password file of the OS (`/etc/shadow` file in *nix).
+
+Today the hash power of GPUs permit to perform this kind of attack online, without the need of sacrifice space speeding the attack. Machine Learning dictionary attacks may be more efficient because they can generate passwords by correlation as human being would do creating dictionaries. 
+
+=== Grab password hashes ===
+
+One of the first location in Windows OS where its possible to find hashes of password is the *Security Account Manager* (NT4 and earlier), it's a file that contains the local users of a machine. In an organization setting the user's accounts are located on a remote machine, but local administrator accounts can be present. Fundamentally SAM file is the equivalent of `/etc/shadow` and it's located in `\system32\config\SAM`, and in the registry key `HKEY_LOCAL_MACHINE\SAM` , but if the system is running SAM file is locked.
+
+On Windows 2000 and greater hashes of password are stored inside the active directory: `\WindowsDS\ntds.dit`.
+
+An easy way to get the hashes of the user password's is to use `cain` from the cracker tab and save the SAM file to the disk, even if the system is running. It works by injecting a DLL into an high privileged process in a running system. Other ways to get the SAM file are to boot the system in a live OS, to use a Repair Disk Utility or to sniff Windows authentication exchanges.
+
+==== Countermeasures ====
+
+There is no defense against this kind of attack because to perform it the attacker has to have Administrative privileges. Hackers will try to get access to the domain controller. 
+
+In general Hashes are supposed to be difficult to invert, but older implementations (LM Hashes) are weak and easy to break, unfortunately older implementations are still used for backward compatibility reason. Note that windows versions prior to Windows 7 do not use salt making possible the use of pre-computed Rainbow Table: *same password, same hash*.
+
+{{file:./imgs/win_salt.png}}
+
+=== NTLM Hash Algorithm ===
+
+NTLM used MD4 hashing until 2004. The 16-byte NTLM hash is null padded to 21 bytes, then its splitted into three 7-byte thirds used to create three DES keys used to DES-encrypt the challenge from Type 2 message resulting in three 8-byte chipertexts that at the end are concatenated to form a 24-byte value. This algorithm is weak because the attacker can obtain the final 24-byte value attacking the singles 7-bytes strings. 
+
+In general *slow* algorithm are better to hash passwords, the legitimate user compute just one hash (because he knows the password), but the attacker has to compute a huge amount of hashes in order to crack the password. All fast hashes should not be used for password authentication. 
+
+=== Brute force and Dictionary attacks ===
+
+The two major techniques for cracking password are Brute Force and Dictionary attacks with variations rules. Some famous tools are `John the Ripper`, `LCP`, `Cain`, `0phcrack`, and `Elcomsoft`.
+
+==== Countermeasures ====
+
+To prevent password cracking use strong passwords, but it's difficult to define what is a strong password. The correlation between the probability that a password is cracked and it's length, after a given point, do not decrease anymore because of the way of humans create passwords: *characters are correlated, so no entropy is added*. 
+
+The real strength of the password is related to the unpredictability of the characters used. 
+
+=== Dumping cached password ===
+
+Some applications store a local copy of user credentials in cache without any kind of encryption. A famous application that do this is the *Local Security Authority*, that caches the logon credentials for external systems outside the local domain. *LSA* cached credentials are available under the registry subkey of *HKEY_LOCAL_MACHINE\SECURITY\Policy\Secrets*. The external services which credentials are stored commonly are: *backup machines*, *and remote machine used by employees*. It is a very source of credentials for the attacker. 
+
+When the machine is off the cached credentials are encrypted, but them are decrypted and retained in memory after login. LSA secret can be dumped used `cain` lsa secret dumper.
+
+If an host is offline, and cannot reach the domain controller, it still can perform correct logon of the user because all the information of the last ten users are keep locally. The tool `CacheDump` can reverse the encryption of the last ten domain logons stored; this tool work if executed as Administrator of the machine. Also `john` (John the ripper) can crack it. 
+
+{{file:./imgs/cachedump.png}}
+
+Usually to became administrator of a local machine used by a normal employee because it is easier to perform escalation. Be aware that every time Remote Desktop Protocol is used, the credential used by the connection are stored locally, so if that machine is compromised the attacker can retrieve the credentials. 
+
+Another tool that can be used to dump credential cached in memory is `windows credential editor`, particularly for users logged in the exact same moment as the attack because it extract clear text password from the RAM. 
+
+
+==== Countermeasures ====
+
+Microsoft offer a patch that limit the amount of credentials cached, preventive security is fundamental to prevent this kind of attack because the attacker need Administrator or SYSTEM privileges to dump the passwords. An attacker local admin account can lead to compromise other accounts by performing a cache dump. A valid advice is to avoid to use high privileged domain accounts to log on local machines (i.e. to start services); also try to avoid RDP connections. 
+
+== Remote Control and Back doors ==
+
+Back doors are a way attackers use to consolidate their access on the machine, back doors are hidden services that allows the attacker to control remotely a machine. The objective of the attacker is to be able to consolidate a remote access without logon on a given machine.
+
+{{{
+nc -l -e cmd.exe -p 8080
+}}}
+
+Netcat listening on port 8080 and executing the command port on connection without any need for credential; `-d` option can be used to make it more stealthy. If the command was executed with administrator privileges the command prompt spawned will have administrator privileges. 
+
+{{{
+telnet <ip> 8080
+}}}
+
+The above is the command performed by the attacker to connect to the previous created backdoor.
+
+=== PsExec ===
+
+`psexec.exe` can be used to perform a remote control passing credentials, uses the SMB port on TCP 139 or 445. In `metaesploit` a lot of ready-to-deploy backdoor are present. This kind of backdoor is very basic. 
+
+=== Graphical Remote Control ===
+
+Virtual Network Control (VNC), can be installed on the target machine by the attacker (it is also part of the `metaesploit` ready-to-use back doors), this is useful because a lot of modern network devices are equipped with a GUI used to modify configurations.
+
+=== Port Redirection ===
+
+Assume that the attacker has a backdoor running on the target machine, and he was to use telnet but the firewall blocks port 23, the attacker can set up a port redirection allowing him to access a specific port of the attacker behind a firewall. `fpipe` can be used to perform a port redirection.
+
+{{{
+fpipe -v -l 53 -r 23 192.168.234.37
+}}}
+
+Everyone that comes from port 53 will be redirected to port 23 on the target machine (and vice versa).
+
+== Covering Tracks ==
+
+After the attacker as expanded it's control inside the target network, he will hide evidences of his intrusion and hide a toolkit to use for regaining control in the future and to use against other system. Also back doors have to be installed in such a way to not gain suspects.
+
+First of all the attacker will disable auditing. 
+
+=== Disabling Auditing ===
+
+The IDS can detect traces of the intrusion, or the administrator can notice strange things. The attacker will use:
+
+{{{
+auditpol / disable
+}}}
+
+to stop the auditing, this command is part of the operating system itself. At the beginning of the attack, creation of backdoor and creation of toolkit the hacker will disable the `auditpol` and the restart it before leaving the system. Another tool that can be used is `elsave`, that allow to do selective cleaning of the log.
+
+After the deletion of the evidence of the attack in the log, the attacker has to _hide_ the presence of maliciously installed software. An easy way is to use the `+h` attribute that sets an hidden bit that hide the file in the folder. The more complicated, but more powerful, way is the use of *Alternate Data Stream*; alternate data stream is a feature of NT filesystem designed for compatibility with Macintosh, it permits to hide a file within a file. 
+The alternate data stream can contain additional data and/or metadata so a file was composed by:
+
+	* content of the file
+	* metadata of file
+	* alternate stream which contains huge amount of metadata (like icon bitmap)
+
+Alternate Stream can be used to contain hidden huge amount of data, because the operating system do not show the size of the alternate data stream. However it's very easy to remove all Alternate Datastream of a file, just copy the file to a FAT partition and then back to NTFS.

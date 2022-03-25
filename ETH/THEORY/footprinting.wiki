@@ -152,11 +152,9 @@ To countermeasure DNS interrogation *zone transfer* has to be allowed only for s
 
 == Network Reconnaissance ==
 
-After the identification of potential networks, an attacker can attempt to determine their topology as well as potential access paths. To accomplish this task `traceroute` command can be used. It is a diagnostic tool that lets view the route that an IP packet follows from one host to the next. It works using the TTL field of an IP packet to elicit an ICMP TIME_EXCEEDED message from each router. `traceroute` can so used for identify the network topology and perhaps identify access control devices that may be filtering traffic.
+After the identification of potential networks, an attacker can attempt to determine their topology as well as potential access paths. To accomplish this task `traceroute` command can be used. It is a diagnostic tool that lets view the route that an IP packet follows from one host to the next. It works using the TTL field of an IP packet to elicit an ICMP TIME_EXCEEDED message from each router. `traceroute` can so used for identify the network topology and perhaps identify access control devices that may be filtering traffic. Another interesting option of `traceroute` is `-g` that allows to specify loose source routing, of course this options is vaiable only if the target gateway accepts source-routed packets. 
 
 Because TTL value used in `traceroute` is in the IP header, TCP, UDP and ICMP packets can be used, allowing the packets to pass through firewalls that blocks ICMP packets. 
-
-*continue here*
 
 === Countermeasures ===
 

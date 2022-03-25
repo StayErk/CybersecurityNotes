@@ -1,0 +1,18 @@
+= Procedures =
+
+Procedures are used to perform call setup, implement paging, and allow handover. 
+
+== IMSI Attach ==
+
+It is a set of procedure that allows the mobile user to selects the BTS to which tune to, then a locaiton update procedure need to be performed. 
+
+=== Cell selection ===
+
+The MS is able to scan all the carrier frequency, and individue the main carrier frequency because it is transmitted with higher power. Whene the MS see a perfect sinusoidal signal from the main carrier, and use it to synchronize to the frequency used. Based on the received LAI, two cases are possible:
+
+	* if is the same of the one stored in the SIM, the IMSI attach procedure is invoked. The MS activates the IMSI stored in the current VLR allowing it to perform paging.
+	* if no LAI is stored, or it is different the *Location Update* procedure is invoked.
+
+The location check is performed periodically to see if a *Location Update* is needed. If the user moves between two location areas of the same MSC/VLR the user send a Location Update request with the old TMSI and the old LAI; the MSC/VLR will send an Location Update ack, plus the new TMSI. 
+
+

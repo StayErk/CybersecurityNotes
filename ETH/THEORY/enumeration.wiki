@@ -158,6 +158,41 @@ Most common web server implementation (like Apache) allow to change the banner t
 
 === Microsoft RPC Endpoint Mapper ===
 
+Some windows systems run a remote procedure call endpoint mapper service on TCP 135, an interaction with this service can lead the hacker to acquire useful informations: `epdump` tool from the windows resource kit can query the MSRPC and show services buond to the ip addresses and port numbers. More powerful tools used to perform MSRPC enumeration are `winfingerprint` for windows and `rpcdump.py` for gnu/linux.
+
+==== Countermeasures ====
+
+The best method to prevent an attacker to enumerate MSRPC is to restrict access to TCP 135, but be aware that this action will lead to problems if a Microsoft Exchange Server is providing mail services to clients on the internet. In fact Outlook clients need to contact an endpoint mapper to connect to the Exchange Server; to solve this problem a VPN must be used to not expose TCP 135 to the internet or, in alternative, Outlook Web Access has to be used.
+
+=== NetBIOS Name Service enumeration ===
+
+The NetBIOS Name Service was used by windows machines as the distributed naming system, from Windows 2000 it has been replaced by the DNS protocol, however for retrocompatibility reasons NetBIOS as not been dismissed: it is still active by default and used by all versions of Windows.
+
+NetBIOS Name Service is easy to enumerate because most of the enumeration tools and techniques are literally built-in into the OS. 
+
+A basic tool that can be used to enumerate a NBNS is `net view`, it lists all the domains available on the network and then can be used to enumerate all the machine inside a particular domain. 
+
+{{{
+C:>net view /domain
+
+<output all domains>
+
+C:>net view /domain:workgroup
+
+<output all the machines in the workgroup domain>
+}}}
+
+Typically `net view` only works on the local network segment, but it's possible to route NBNS over TCP/IP allowing enumeration from a remote system. To acquire more informations on the Windows network the attacker can use other tool from `ResKit`. First of all he can use `nltests` or `netdom` to find which machine controls a given domain and then use `netviewx` to find specific services together with `nbtstat` to collect information from a single system. Sometimes the attacker can also be interested to dump the whole NetBIOS name table using  `nbtscan`. 
+
+==== Countermeasures ====
+
+All the tools and techniques used to enumerate NBNS operate over UDP 137, so to stop unauthorized enumeration block UDP 137 or restrict it to only authorized hosts and disable Alerter and Messenger services on each host to prevent user data from appearing in NB name table dumps. Be aware that blocking UDP 137 will disable also NBNS name authentication preventing applications to work. 
+
+
+=== NetBIOS session ===
+
+Windows NT based system suffer of a notorious vulnerability, that leads permit to the attacker to enumerate systems remotely: *Null Session*. Today Null Sessions are turned of by default. `null sessions` can provide informations about shares, user accounts and password policies. *continue here*
+
 ==== Countermeasures ====
 
 === SNMP ===

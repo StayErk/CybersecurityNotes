@@ -1,0 +1,79 @@
+= Logical Channels =
+
+There are a number of control information needed to make possible communications. Some channels are allocated to allow the exchange of control traffic to implement the functionalities of the channel. Signaling channel are used by a specific or multiple user to transmit a specific kind of informations that has a common meaning. 
+
+	* Traffic channels versus control channels
+	* Common channels versus dedicate channels: the latter is for specific user when the former is for multiple users
+
+== Common channels ==
+
+There are to kind of common channels: broadcast control channels and common control channels, broadcast control channels are used for synchronization, frequency correction and the structure of the logical cell. Common control channels are channel over which informations are sent between two specific users, but the same specific channel is used by all users: RACH Random Access CHannel (*uplink*) is used to request an allocation of resources (like to setup a call), and its shared by everyone; the answer of the BTS is performed on another channel: AGCH (*downlink*). Resources are not allocated immediately.
+
+== Dedicated channels ==
+
+Dedicated control channel are channels dedicated to a specific user for services like authentication, dedicated traffic channels can differ for the service associated to it and the type of encoding. Dedicated control channels are used also during conversation for check the quality of the service (Slow associated control channel and fast associated control channel when handover). 
+
+== Control Channels ==
+
+Broadcast channels are all unidirectional downlink channels providing general information of the network. The common control channel are shared among multiple connections and carry specific information for initiating a connection: Dedicated Control Channels carry information specific for a single connection. 
+
+=== Broadcast Channels ===
+
+	* FCCH is a downlink channel that allows the receiver to get frequency synchronized with the base station.
+	* SCH is used after the frequency correction, it sends the identity code (BSIC) and the frames to synchronize the clock, used to perform forward correction.
+	* BCCH carry information that regards the structure of the control channels, for instance information about when and where control information will be sent, what are the adjacent cells and location area code. 
+	  
+The handover algorithm is not specified by the standard, so each carrier can implement it's own. 
+
+=== Common control channel ===
+
+	* PCHL is a downlink channel used by the BTS to notify an incoming call to a MS, broadcasted over a Location Area; the network knows only the location area, but not the cell in which the user is connected. Consent to send request to page a specific user. From the mobile station to the base station. 
+	* RACH is used by a mobile station to request resources and to answer to paging requests, so it's an uplink channel used by multiple users. Of course be aware that there is of course a medium access protocol used to prevent collisions.
+	* AGCH is used by the base station to answer at RACH requests,  it inform the user that resources are been granted (like ack). 
+	  
+==== RACH ====
+
+Access to the RACH is random, so it's prone to collisions. If RACH requests are correctly received and ack is sent on the AGCH channel. In RACH messages a pseud-random sequence is included used to identify the relative ack on the AGCH channel. To solve the problem of collisions the _slotted-ALOHA_ is used: if ack is not received the MS wait a random amount of time to retry. 36% of efficiency, not high but good enough for GSM.
+
+=== Dedicated control channels ===
+
+They are dedicated channel used to exchange control information between a specific user and a base station, used to perform authentication and call set-up. 
+
+	* SACCH is a bidirectional control channel used to exchange connection metrics during a data exchanging. In uplink are sent information about the quality of the data received from the base station.
+	* FACCH is used for exchange time critical information to perform urgent handhover request. It transmit control informations by stealing capacity from the associated traffic channel. Handover have to work really fast, because a call have to not go down.
+	* SDCCH is a standalone dedicated control channel assigned after a RACH request.
+
+==== SACCH ====
+
+During a conversation the MS can't listen to the broadcast control channel, so the Base Station send him BCCH informations, in Uplink the MS send measurements reports used by the BSC to ask him to increase or decrease the transmission power and to make decision about handover. 
+
+{{file:./imgs/sacch-info.png}}
+
+Synchronization is used to limit delay and collisions at the BTS during uplink communication. To limit this problem *guard time* is used, but this solution is not efficient, so a BTS has to inform the user to advance the transmission accounting for the delay time. 
+
+=== Setup of traffic channel ===
+
+{{file:./imgs/bts-setup.png}}
+
+
+=== Traffic Channels ===
+
+Traffic channels can carry speech and data, there are two type of them: *Full Rata channels* and *Half Rate channel*, half rate channels can be used to multiplex to users in the same slot. 
+
+Interleaving is used to limit the amount of retransmission. 
+
+==== Multiframe TCH full duplex ====
+
+Focus only to the specific slot on each frame, allowing to see how to use the same physical resource to multiplex multiple logical channels. On the same physical resource two logical channels: TCH and SACCH.
+
+Training sequence is used for equalization operations on the receiver to compensate the transmission of real data (solve inter-symbol interference). 1,9Kb/s are not used, leaving a free slot every 13 frames to transmit other traffic flow: SACCH. 
+
+This is enough only for full rate encoding. In case of Half Rate encoding the 26th frame is used to send SACCH is used for the second user. The free 26th frame is used to listen to BCCH channel.
+
+=== Common signaling channels ===
+
+A given slot, over a given carrier, is used to obtain one or multiple channeles that use a multiframe containing 51 frames. No frequency hop is used, for a given carrier is used always the same slot. In downlink the main carrier is transmitted at higher power than other carries allowing MS to synchronized with the main carrier. 
+
+== Burst ==
+
+Burst's are the packet sent on GSM, normal burst are used for user transmissions over traffic data. Access Burst have longer guard period to avoid overlapping the transmission from different mobiles. Synchronization is used to estimate timing advance for the normal bursts (limiting the guard period). 
