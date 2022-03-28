@@ -1,0 +1,70 @@
+= IPv6 =
+
+IPv6 is the protocol meant to replace IPv4, overcoming its limitations and with the introduction of features, it was developed from mid/late 90', the most noticeable aspect is the 128-bit address space that gives 340 *undecillion* addresses. Of course IPv6 is not just _more addresses_ and hexadecimal representation but introduces numerous features: 
+
+	* Stateless configuration
+	* end-to-end reachability without private addresses and NAT
+	* better support for mobility
+	* easier peer-to-peer networking
+
+== Why IPv6? ==
+
+The major reason of because we need IPv6 is that we are running out of IPv4 address space, already in 2011 IANA allocated the last /8 IPv4 address block to the RIRs, and as we can see on [[https://www.internetworldstats.com/stats.htm|Internet World Stats]] regions with largest populations have the lowest percentages of people connected to the internet: we need more addresses. 
+
+A temporary patch that We still use is NAT. NAT has been used to _hide_ customers of ISP exposing just one public address for customer. NAT, however, creates issues with peer-to-peer networks and limits the access to our _hidden_ systems from other networks. 
+
+== IPv6 Address Representation ==
+
+4 bits can be represented with just one hexadecimal digit. Each IPv6 address is composed by 8 _hextets_ (group of 16-bit so 4 hexadecimal digits) divided by a *:*. Two rules have to be followed when writing an IPv6 address:
+
+	1. leading 0s can be omitted, but trailing 0s must be included, for example:
+
+{{{
+2001:0DB8:0001:1000:0010:0100:0EF0:BC00
+
+2001: DB8:   1:1000:  10: 100: EF0:BC00
+}}}
+
+	2. any single, contiguous string of one or more 16-bit segments of all zeros can be represented with a double colon (*::*)
+
+{{{
+2001:0DB8:0001:0000:0000:0000:0EF0:BC00
+
+2001:0DB8:0001:              :0EF0:BC00
+}}}
+
+== IPv6 Addresses Type ==
+
+There are multiple types of IPv6 addresses, and each of them has it's scope. We can categorize them as follows:
+
+	* Unicast
+		- [[#Global Unicast Address|Global Unicast]] (*2000::/3*)
+		- Link Local (*FE80::/10*)
+		- Loopback (*::1/128*)
+		- Unspecified (*::/128*)
+		- Unique Local (*FC00::/7*)
+		- Embedded IPv4 (*::/80*)
+	* Multicast
+		- Assigned (*FF00::/8*)
+		- Solicited Node (*FF02::1:FF00:0000/104*)
+	* Anycast
+
+As We can see in IPv6  there isn't the concept of broadcast address. In a IPv6 header (more on this) the *Source address* is always unicast (link-local or GUA), the *Destination address* can be Unicast, Multicast or Anycast.
+
+=== Global Unicast Address ===
+
+GUAs are globally unique and routable, they have the same purpose of IPv4 public addresses, and they range from: *2000::/3* to *3FFF::/3*. They represent $\frac{1}{8}$ of the IPv6 address space.
+
+We start from *2000::* fixing the first 3 *bits* so:
+
+{{{
+_001_0 0000 0000 0000 ::
+}}}
+
+and we can go up to:
+
+{{{
+_001_1 1111 1111 1111 ::
+}}}
+
+
