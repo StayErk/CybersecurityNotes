@@ -1,0 +1,102 @@
+= Web Security =
+
+The idea is to focus on the web application themselves rather than the service that runs the application. Web Application hacking requires an analysis of the implementation and functioning of the application. There are many tools that helps us to analyze a we application like `google dorks`, `browser plugins` and so on.
+
+== Google Dorks ==
+
+Search engines indexes anything, using advanced query search a lot of useful information can be found ([[https://www.exploit-db.com/google-hacking-database|google-hacking db]]). Google Dorks can be used to find misconfigured web servers and application. Search engines also help to find poorly coded web pages like forms with hidden fields or coding mistakes. 
+
+== Web Crawling ==
+
+It's used to familiarize with the target website, offline inspection is preferred when looking for sensitive data in interesting pages like comments in dynamic pages, response headers and cookies. It can be a long process, to download a website for later offline analysis `wget` can be used. 
+
+== Web Application assessment ==
+
+First of all we need to understand how a web application work and it's components like authentication, database interaction and session management; input validation can also be a potential source of vulnerability. In general web application assessment requires proper tools like `browser plugins`: they can see and modify data in real-time, allowing the edit of request header and body with in-depth inspection of responses.  Check individually each response header and response is useful to understand more of the application logic. `Tool suites` are proxys that interpose between a client and a server, the client can be whatever type of application providing all functionalities of plugins and more (`burpsuite`). 
+
+== Common Web Application vulnerabilities ==
+
+Typical vulnerabilities are weak password for login, misconfiguration, session hijacking (allow us to steal a session used by another user), XSS (allow to force a browser to execute a script), XSRF (allow to force a user to perform actions as an auth user), and finally SQL injection. 
+
+A *Page request* can be schematized in the following way:
+
+{{file:./imgs/session.png}}
+
+An URL has a structure which describe how a request is performed and which parameters are sent to the server. Some character cant be used in URL because they have special meaning; non allowed character are: `: / ? [ ] @ ! $ & ' ( ) * + , ; =` because they're use is reserved. Also only printable ASCII character can be used. If it's really needed to use not allowed ASCII characters they has to be encoded with a `%` followed by tho hex digits. 
+
+{{file:./imgs/url-struct.png}}
+
+== Structure of HTTP request ==
+
+An HTTP request is formed by three parts: a *request line*, an *header* and a *body*. Header and body are divided by a empty line and request line and header are terminated by "\r\n" ([[https://www.makeuseof.com/difference-newline-carriage-return/|curiosity on carriage return]]).
+
+
+=== Request Line ===
+
+A request line is composed by three components: a *method*, the *resource* requested and the *version* of HTTP used. For example: 
+
+{{{
+GET /index.html HTTP/1.1
+}}}
+
+Some HTTP methods are: [[https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods|GET, POST, DELETE, OPTION and PUT]].
+
+=== Header ===
+
+The header contains informations about the request itself and the _requester_ like the *hostname* of the full URL accessed, *Authorization* infos, *Referer* to indicate from which page the request has been made, and the *User-Agent* used to perform the request. Also there can be meta-information about the request body like the *Content-Length* and the *Content-Type*.
+
+== Structure of HTTP response ==
+
+An HTTP response is similar in structure to an HTTP request, it's composed by a *status line* an optional *header* an *empty line* and an optional *body*. 
+
+=== Status Line ===
+
+The status line of an HTTP response is composed by three components: the version of the HTTP protocol used, a status code and a text code:
+
+{{{
+HTTP/1.1 200 OK
+}}}
+
+There are different classes of status codes: *informational* ([[https://developer.mozilla.org/en-US/docs/Web/HTTP/Status#information_responses|100-199]]), *successful* ([[https://developer.mozilla.org/en-US/docs/Web/HTTP/Status#successful_responses|200-299]]), *redirection* ([[https://developer.mozilla.org/en-US/docs/Web/HTTP/Status#redirection_messages|300-399]]), *client error* ([[https://developer.mozilla.org/en-US/docs/Web/HTTP/Status#client_error_responses|400-499]]) and *server error* ([[https://developer.mozilla.org/en-US/docs/Web/HTTP/Status#server_error_responses|500-599]]). 
+
+=== Header ===
+
+The first part of the header includes the banner of the web server running that can include modules and OS. Also can be present the *location* field that can be used to redirect the browser and the *Content-Length* and *Content-Type* of the body. Additional informations that can be present are *Last-Modified*, *Expires* and *Pragma*.
+
+HTTP requests are used to provide dynamic contents to websites, client side scripting languages can be used to tell the browser to execute according to user behaviour. Server side scripting is used by the server to construct web pages with dynamic content. 
+
+*Parameters passing using GET:*
+
+{{file:./imgs/parameter-get.png}}
+
+*Parameters passing using POST:*
+
+{{file:./imgs/parameter-pass.png}}
+
+== HTTP Authentication ==
+
+Authentication mechanism are not really used, two mechanism are implemented *basic* and *digest*.
+
+== Monitoring and manipulating HTTP ==
+
+The payload in inside a TCP packet and the data is in clear text. A lot of tool can be used to sniff http traffic; with https tamper can be done using browser extensions (`Tamper Data`) or proxy. 
+
+HTTP proxy is a tool used to look at http traffic and modify it and are application independent. Some HTTP proxy are `WebScarab`, `ProxPy` and `Burp`.
+
+=== Burp Suite ===
+
+It is a set of tools that can be combined to perform automated or manual analysis of http traffic: 
+
+	* intercept proxy
+	* application aware spider
+	* web application scanner
+	* repeater to resend requests changing parameters and header
+	* compare
+
+Burp and Hydra can be used together to brute-force a login form: 
+
+{{{bash
+hydra -L <users> -P <pwds> <target_ip> http-form-post '<page>:<POST data>:S=<success_condition>'
+}}}
+
+
