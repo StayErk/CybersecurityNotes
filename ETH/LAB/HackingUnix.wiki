@@ -296,8 +296,8 @@ Passwords are a security issue if not created properly. Always assume that users
 User's accounts informations are stored in two different files: `/etc/passwd` and `/etc/shadow` ([[https://linuxize.com/post/etc-passwd-file/|more on passwd]],[[https://www.computernetworkingnotes.com/linux-tutorials/etc-shadow-file-in-linux-explained-with-examples.html|more on shadow]]). The former contains a line for each user and each line has the following structure: 
 
 {{{
-	username:x:1021:1021:Username user:/home/username:/bin/bash
-	(1)     :(2):(3):(4):(5)          :(6)           :(7)
+username:x:1021:1021:Username user:/home/username:/bin/bash
+(1)     :(2):(3):(4):(5)          :(6)           :(7)
 }}}
 
 each line has to be interpreted in the following: 
@@ -313,8 +313,8 @@ each line has to be interpreted in the following:
 the latter contains a line for each user and each line has the following structure:
 
 {{{
-	username:$1$fnfffc$oasdAdoafCaapsdAdpP#7:13064:0:99999:7:::
-	(1)	:(2)				:(3)  :(4):(5):(6):(7):(8)
+username:$1$fnfffc$oasdAdoafCaapsdAdpP#7:13064:0:99999:7:::
+(1)	:(2)				:(3)  :(4):(5):(6):(7):(8)
 }}}
 
 each line has to be interpreted in the following way:
@@ -334,3 +334,92 @@ each line has to be interpreted in the following way:
 ===== Tools: John the Ripper =====
 
 [[https://www.openwall.com/john/|John the Ripper]] is a common used tool used to crack hashes. It is used in the local access setting because it automatically handles the MCF format, it's easy to configure and extend and has a good set of mangling rules.
+
+==== Shared Libraries ====
+
+They are the equivalent of windows DLL and are shared between different programs, they allow to save memory during execution but if a vulnerability is found in a shared library all the program that use it will be affected; this is true also for defense: one patch for all. 
+
+The system look for shared libraries inside any directory specified by `rpath-link` options (effective at link time), at in any directory specified by `-rpath` options used at runtime. Also the system looks at:
+
+	* `LD_RUN_PATH`
+	* `LD_LIBRARY_PATH`
+	* `lib`
+	* `/usr/lib`
+	* and directories in `/etc/lib.so.conf`
+
+An attacker that has write permission in one of this directory can inject code, tools that can be used `ldd` and  `objdump -p <binary> | grep "RPATH|RUNPATH"`.
+
+===== Countermeasures =====
+
+Check if a non root user has write permission to any DIR in `$PATH`, use `-rpath` carefully when linking. Make sure `LD_RUN_PATH`, `LD_LIBRARY_PATH` do not include directories with weak permissions.
+
+==== Kernel flaws ====
+
+Unix system are highly robust and complex, with high complexity come higher chance of bugs, the kernel is responsible for enforcing the overall system's security  model. If an attacker exploits a kernel flow he can obtain complete access to the system. 
+
+=== System misconfiguration ===
+
+==== Unix permission ====
+
+File permissions are specified by three access classes: _user_, _group_ and _others_, for each of this classes 3 access types can be set: `r`, `w` and `x`. Each file has three special modes that are _set user id_, _set group id_ and _sticky_.
+
+When a file with SUID is executed, the process assumes the effective user id of the *owner* of the file; the SUID provides flexibility and allows for temporary elevation of privileges. Many SUID programs create a temp files, stored in `/tmp`, symlinks can be used to execute code, also poorly coded SUID programs with buffer overflow vulnerability are very dangerous. 
+
+===== Countermeasures =====
+
+The best countermeasure is to remove as many SUID files are possible, and use `nosuid` option of mount so all the programs with SUID enabled on that file system are ineffective. 
+
+==== Capabilities ====
+
+Capabilities provide fine-grained control over which privileged functions a non-root process can use. Capabilities are splitted at kernel level into groups with related functionality; capabilities need to be given by a root user and allow a normal user to perform some specific privileged operation. For this reason bad capability configuration can be exploited. Check capabilities with `getcap -r / 2>/dev/null`.
+
+===== Countermeasures =====
+
+Use capabilities as few as possible and create inventories of programs with assigned capabilities.
+
+
+==== World-Writable files ====
+
+They are rarely used, but are files that can modified by any user used for laziness and they have to be avoided. 
+
+===== Countermeasures =====
+
+Do not use world-writable files unless needed, of course create inventory of them and never leave startup scripts has world writable.
+
+
+==== Sensitive Utilities ====
+
+Always check `sudo` configuration and scheduled cron jobs to check if there are jobs with write access.  
+
+== Advanced Persistent Threats ==
+
+After the attacker has gained elevated privileges the attacker want to maintain an easy access to the compromised machine. 
+
+=== Trojans ===
+
+Trojans are malware hidden in otherwise normal files. Once an attacker has root it can attach a trojan to any file/program in the system, opening back doors  that allows remote connections circumventing firewall rules.
+
+==== Countermeasures ====
+
+Trojan are hard to detect without a proper setup, a good method to identify corrupted files/program is to compare the original hash of the file with the current hash of the file. Of course a database of hashes of the original files has to be stored. Note that it's not possible to rely on backup copies after compromise, as the backup could also be compromised.
+
+
+=== Sniffer ===
+
+They are programs that can sniff packets sent on the network with the objective of gather interesting and confidential information exchanged in the local network segment. If traffic is not properly secured, attackers can also obtain critical information such as password and usernames.  With sniffer attacker can gain a good understanding of potential target services. 
+
+==== Countermeasures ====
+
+Sniffer are borderline impossible to detect, but they can be limited by using a switched network topology and use network level encryption like `IPsec` and `TLS`.
+
+=== Log cleaning ===
+
+Systems logs information regarding system services and interactions including all the activity of the attacker. Log cleaners are part of virtually every rootkit allowing attacker to delete their traces. Some log cleaners can also intercept programs that sends log files to remote servers. 
+
+=== Kernel Rootkit ===
+
+They are the worst kind of APT, they compromise the kernel of the OS itself allowing the attacker to compromise all the system programs. Advanced methods are based on raw memory modification. Same kernel rootkits are designed to intercept system calls, can be easily detected using integrity check; other rootkits can corrupt system call handler or hack the interrupt descriptor table.
+
+==== Countermeasures ====
+
+You can't trust the system itself if a kernel rootkit is installed, so prevention is the only countermeasure. 
