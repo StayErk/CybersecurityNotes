@@ -16,3 +16,148 @@ The MS is able to scan all the carrier frequency, and individue the main carrier
 The location check is performed periodically to see if a *Location Update* is needed. If the user moves between two location areas of the same MSC/VLR the user send a Location Update request with the old TMSI and the old LAI; the MSC/VLR will send an Location Update ack, plus the new TMSI. 
 
 
+Prcedures are needed to implement the functionalities offered by the network operator. The key feature of the cellular system is the availability of the service anywhere and always. 
+
+*to continue*
+
+== Mobility ==
+
+In cellular system we provide a global coverage, implementing frequency reuse according to a clustering scheme. 
+
+Different color represents cells, and given the fact that we use *frequency reuse*, they represent the subset of frequencies that are available for the users allocated on that cell. In this way with a limited set of frequencies, the operator, can cover a large area. It's possible to dimension the clustering, the patter used for frequency reuse, and the size of the cell. 
+
+As a general concept there are mathematical tool that can be used, smaller the cell the more user density is. The frequency reuse allow to avoid distracting interference, if we have smaller cells we can transmit with lower power (beneficial for low power devices), furthermore smaller cells can provide more capacity per user because each cell will manage only a subset of user. 
+
+When the user is in conversation moves and he wants to stay connected. When the user moves the signal start degrading, and before the signal cease we need to pass the user to another cell. This procedure is called *handover*, a BTS gives the responsibility to another BTS to manage the connection of a user. Smaller cells implies more handovers.
+
+=== Management ===
+
+Users need to be capable to move freely between different area without losing connection. When performing an handover also the other elements of the network operator network have to be informed to properly reroute the connection and to update the informations stored in the databases.
+
+It's important to correctly decide if and when perform an handover. When moving an user can:
+
+* call
+* be called
+* be in conversation
+
+In case of circuit service mobility management procedures differ depending on whether the user is moving in the IDLE state or in the ACTIVE. 
+
+=== Handover ===
+
+It is the functionality that allows us, when we are in conversation, to make decisions about which BTS has to handle the traffic of a particular user. In general Handover can be done accordingly to different strategies that are completely controlled by the network. The handover procedures is performed by the network, but the decision is taken accordingly to the measurements taken by the Mobile Station and the BTS on the quality of the transmission.
+
+When the user moves far away from the BTS, the received signal power exponentially decreases, the network requires that the received signal has to be above a certain threshold, if the signal is below an handover procedure has to be triggered. Of course the choice of the new BTS is fundamental.
+
+{{file:./imgs/handover-thresh.png}}
+
+Depending on the type of movement the $\delta t$ vary and so the critical moment in which start the handover also changes. The handover decision can't be taken to early because there is the risk of losing the connection. Also it's important to not make many handovers when they are not needed. 
+
+There are several methods used to decide when perform an handover. The first is the *method of the stronger signal*: at a given point the MS receives a stronger signal from a BTS different from the one that is currently managing its signal. Note that, because fluctuations of the signal there is the possibility of _ping pong_ effect. 
+
+{{file:./imgs/strong-sig.png}}
+
+A more conservative method that reduce the possibility of _ping pong_ effect is the *stronger signal with the threshold*, if the signal received from the previous *BS* is less than a threshold, and the power of another *BS* is stronger, the handover can occur. 
+
+
+{{file:./imgs/strong-sig-thre.png}}
+
+A third possible method is the *stronger signal with hysteresis*, when using this method the handover is performed if the power of the other BS is stronger than the power of the current BS by a fixed value of *h*.
+
+==== Handover Performances ====
+
+To talk about performances of an handover procedure implementation we have to consider two probabilities:
+
+1. the probability of blocking $P_{block}$, this is the probability of rejecting a new call.
+2. the probability of dropping $P_{drop}$, this is the probability of drop an active call during an handover. A drop can occur because a bad quality of the channel, or because a failed handover. 
+   
+Both of the above have to be really small, but it's better to block an incoming call that loosing an active one.
+
+*Guard Channels* are used to exchange informations used to perform handover requests. They consent to decrease the $P_{drop}$, but also they limit the capacity of the system.
+
+Options that do not use *guard channels* are the: queuing priority scheme, and the subrating scheme. The *Queuing priority scheme*, is implemented in the following way: when a user request an allocation of resources for performing an handover, but there aren't enough resources, the allocation of resources is queued and pospone it to the very last minute the decision of the handover. If no resource is available, the last opportunity is represented by the *subrating scheme*, multiplexing two user on the same logical channel freeing space for new users but degrading a little the quality of encoding.
+
+{{file:./imgs/soft-hard.png}}
+
+=== Handover in GSM ===
+
+The handover procedure is initiated by the network based on the measurements provided by the MS. The procedure requires a set of rules to determine whether an handover is necessary and also methodologies to commute the communication from the original radio channel to the new channel, while remaining transparent to the user.
+
+More in details the parameters are:
+
+* Signal strength on the BCCH carrier of adjacent cells
+* Signal strength on the active TCH channel
+* Quality of the active TCH channel
+
+measured by the Mobile Station;
+
+* Signal strength from the MS on the traffic channel;
+* Quality of the traffic channel from the MS
+* Distance of the MS using time advance. 
+
+measured by the adjacent BTS. 
+
+An handover can be performed for different reasons, the most common is a low quality of the transmissions, followed by the distance between the MS and the BTS over a given threshold. Furthermore it can be motivated by traffic or technical reasons. 
+
+==== Types of handover ====
+
+There are four different types of handover:
+
+1. intra cell - intra bsc
+2. inter cell - intra bsc
+3. inter cell - inter bsc
+4. inter msc
+
+All of them have to be performed quickly, in less than 100ms.
+
+===== Intra Cell - Intra BSC =====
+
+It is the simpler type of handover possible, in this case we are not moving from one cell to the other but we have to change the channel allocated to the Mobile Station. The decision about this handover is performed only by the BSC, that allocates the new TSC and SACCH. This kind of handover is triggered by a low-quality TCH, with high received signal strength with no adjacent BTS that can provide better quality of transmission. The BSC communicate the decision of the handover through the BTS one the FACCH.
+
+===== Inter Cell - Intra BSC =====
+
+In this case, the handover is performed when the MS moves to a new cell which is under control of the same BSC that control the old cell. So the MS moves from a BTS to another. Also in this case, the handover procedure is fully controlled by the BSC, it will identify and choose the best BTS (and relative TCH) for the mobile station based on the measures take by the MS and the BTS itself. Then the BSC requires from the new BTS the allocation of a new TCH, and using the FACCH it signal the MS to use the specific TCH. Finally the MS start sending traffic over the new TCH and drops the old connection.
+
+Of course when moving to new BTS, the set of adjacent cells changes, so the MS has to acquire new informations using the (_new_) SACCH, if the LA is changed by the handover a Location Update Procedure has to be triggered by the MS.
+
+===== Inter Cell - Inter BSC =====
+
+In this setting, the old BSC gets the measurements and notice that the best cell to use is not under it's control; so the BSC, through the MSC VLR, asks to the BSC that manages the new cell to allocate a channel to the MS. When the old BSC gets a response it triggers the handover procedure on the MS. 
+
+===== Inter MSC =====
+
+In this setting the MS is moving between cells that are managed by different MSCs. This is the most complex situation possible: the call is routed by initial MSC to the final MSC.
+
+The procedure is initiated by the current BSC, that decides an handover towards a BTS controlled by another MSC/VLR. The current BSC sends an handover command to the initial MSC/VLR, which sends a request to the new MSC/VLR. The new MSC/VLR allocates an HandOver Number (HON) transmitted to the old MSC/VLR. The HON is needed to reroute the ongoing call. 
+
+The new MSC/VLR starts a connection with the new BSC which reserves a traffic channel for the MS, then the initial  MSC/VLR sends an handover command to the MS using the FACCH of the old BSC and BTS. Finally the MS switches to the new channel and starts sending traffic over the new TCH releasing the old connection.
+
+=== Voice Coding ===
+
+Speech signal are produced through vibrations of the vocal cords and by the different configurations of the mouth.  Considering vowels there's a high amplitude, and few frequency are used: all the relevant frequencies are below $4$kHz. 
+
+There are different kind of encoding, in general the quality is measured by the MOD Mean Opinion Score. There are different kind of encodings that need different bitrates and have different perceived quality. 
+
+* Hybrid Codecs
+* Waveform Codecs
+* Vocoders
+
+When using the Waveform codecs there is no a priori knowledge of how the signal was generated, the only informations needed are the signal bandwidth and the maximum tolerable quantization noise. According to Nyquist the signal has to be sampled at twice of it's bandwidth. 12bits are needed to achieve a low quantization error. 
+
+{{file:./imgs/code-decode-voice.png}}
+
+The non-uniform quantization is used to compress the data: 8bits per sample are used without loss of quality. This is the general methodology, particularly the Pulse Code Modulation, and can be applied to any kind of signal. The PCM requires 64Kbps.
+
+==== Differential PCM ====
+
+It's possible to predict the new values, using the old ones to only encode the differences between the predicted signal and the real signal. In case of *adaptive DPCM* the performances of the predictor can be improved by sending the parameters of the prediction (32Kbps).
+
+
+==== Vocoders ====
+
+The vocoders make assumptions on the signal, the assumptions are based on models for the generation of the human voice. This kind of model allow to remove redundancy from the vocal segments. It's sensitive to errors, noise and non-human sounds. They can go down to 2.4Kbps but the vocal signal results in a _metallic_ sound.
+
+==== Excited Linear Prediction ====
+
+THis technique tries to overcome the synthetic sound of vocoders by allowing a wide variety of excitation signals which are captured in the CELP codebook.
+
+

@@ -191,13 +191,35 @@ All the tools and techniques used to enumerate NBNS operate over UDP 137, so to 
 
 === NetBIOS session ===
 
-Windows NT based system suffer of a notorious vulnerability, that leads permit to the attacker to enumerate systems remotely: *Null Session*. Today Null Sessions are turned of by default. `null sessions` can provide informations about shares, user accounts and password policies. *continue here*
+Windows NT based system suffer of a notorious vulnerability, that leads permit to the attacker to enumerate systems remotely: *Null Session*. Today Null Sessions are turned off by default. `null sessions` can provide informations about shares, user accounts and password policies. To access a file, or a printer within a Windows network the Server Message Block (SMB) protocol is used, SMB is accessible via APIs that can return rich informations about Windows even without login. It is very easy to perform a null session:
+
+{{{
+C:\>net use \\<ip_address_of_target\IPC$ "" /u:""
+}}}
+
+This command connects to the hidden interprocess communications _share_ with the anonymous user with no password; if successful the attacker can attempt all the various techniques previously explained to obtain as much informations as possible.
+
+Some common targets of this kind of enumeration are misconfigured ACL file shares, in fact, when a null session is established the attacker can enumerate the names of all file shares using a builtin microsoft command `net view` or using additional tools like `srvinfo` and `srtvcheck` from Microsoft or `DumpSec`.
+
+DumpSec is capable of enumerating everything starting from file-system permissions to services available on a remote system; also it retrieve basic user informations using a null connection. NetBios scanners such as `SysInternal` and `ShareEnum` can provide a huge amount of possibilities to scan and check entire network for exposed shares.
+
+===== Registry Enumeration =====
+
+It is important to note that a good source of informations about installed application and services on a Win NT machine is the `Registry`. Registry content can be viewed remotely, but Administrator privileges are needed, for this reason a null session is not enough to enumerate the registry. `reg` command or `DumpSec` can be used to enumerate the registry of a remote machine. 
+
+===== User Enumeration =====
+
+Another source of useful information that an attacker would enumerate is the list of User account names and their SID, an SID is a unique and immutable identifier of a particular security principal that can be a single user or a user group. There are command line tools capable of obtain a username form a SID and vice versa (`user2sid`, `sid2user`), so if an attacker has obtained SIDs can also obtain all the usernames of the system's users. When an intruder knows the given SID for a machine, the last part of it represent the relative identifier RID, which can assume some standard values, i.e. 500 for the administrator account username (if it has been renamed). 
+
+`sid2user` and `user2sid` work even if `RestricAnonymous` is set to 1, as long as port 139 or 445 are accessible. Other tools are: `winfingerprint`, `Winfo`, `NBTEnum 3.3`.
 
 ==== Countermeasures ====
 
+To avoid completely SMB Null Session enumeration block TCP 139 and 445 ports at the network perimeter and set the `RestrictAnonymous` registry key to 1 or to 2 (windows 2000 or later) and ensure that the Registry is locked down. It's fundamental to audit regularly with  `dumpsec`.
+
 === SNMP ===
 
-Simple Network Management Protocol, is the de facto standard in network management. 
+Simple Network Management Protocol, is the de facto standard in network management, and it is used by network administrators to configure and remotely manage routers. 
 
 ==== Countermeasures ====
 

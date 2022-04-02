@@ -1,5 +1,3 @@
-= Hacking Unix =
-
 = Contents =
         - [[#Hacking Unix|Hacking Unix]]
                 - [[#Hacking Unix#Remote Access|Remote Access]]
@@ -41,7 +39,27 @@
                                 - [[#Hacking Unix#Local Access#Attack the System#Weak Passwords|Weak Passwords]]
                                         - [[#Hacking Unix#Local Access#Attack the System#Weak Passwords#How passwords works in Unix|How passwords works in Unix]]
                                         - [[#Hacking Unix#Local Access#Attack the System#Weak Passwords#Tools: John the Ripper|Tools: John the Ripper]]
+                                - [[#Hacking Unix#Local Access#Attack the System#Shared Libraries|Shared Libraries]]
+                                        - [[#Hacking Unix#Local Access#Attack the System#Shared Libraries#Countermeasures|Countermeasures]]
+                                - [[#Hacking Unix#Local Access#Attack the System#Kernel flaws|Kernel flaws]]
+                        - [[#Hacking Unix#Local Access#System misconfiguration|System misconfiguration]]
+                                - [[#Hacking Unix#Local Access#System misconfiguration#Unix permission|Unix permission]]
+                                        - [[#Hacking Unix#Local Access#System misconfiguration#Unix permission#Countermeasures|Countermeasures]]
+                                - [[#Hacking Unix#Local Access#System misconfiguration#Capabilities|Capabilities]]
+                                        - [[#Hacking Unix#Local Access#System misconfiguration#Capabilities#Countermeasures|Countermeasures]]
+                                - [[#Hacking Unix#Local Access#System misconfiguration#World-Writable files|World-Writable files]]
+                                        - [[#Hacking Unix#Local Access#System misconfiguration#World-Writable files#Countermeasures|Countermeasures]]
+                                - [[#Hacking Unix#Local Access#System misconfiguration#Sensitive Utilities|Sensitive Utilities]]
+                - [[#Hacking Unix#Advanced Persistent Threats|Advanced Persistent Threats]]
+                        - [[#Hacking Unix#Advanced Persistent Threats#Trojans|Trojans]]
+                                - [[#Hacking Unix#Advanced Persistent Threats#Trojans#Countermeasures|Countermeasures]]
+                        - [[#Hacking Unix#Advanced Persistent Threats#Sniffer|Sniffer]]
+                                - [[#Hacking Unix#Advanced Persistent Threats#Sniffer#Countermeasures|Countermeasures]]
+                        - [[#Hacking Unix#Advanced Persistent Threats#Log cleaning|Log cleaning]]
+                        - [[#Hacking Unix#Advanced Persistent Threats#Kernel Rootkit|Kernel Rootkit]]
+                                - [[#Hacking Unix#Advanced Persistent Threats#Kernel Rootkit#Countermeasures|Countermeasures]]
 
+= Hacking Unix = 
 
 == Remote Access ==
 

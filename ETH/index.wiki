@@ -6,14 +6,15 @@ This page (and the followings) contains my personal notes taken during the [[htt
 
 == Theory ==
 	
-	* [[./THEORY/footprinting.wiki|Footprinting]]
-	* [[./THEORY/scanning.wiki|Scanning]]
-	* [[./THEORY/enumeration.wiki|Enumeration]] - to be finished
-	* [[./THEORY/hacking_win.wiki|Hacking Windows]] - lectures ongoing
+- [X] [[./THEORY/footprinting.wiki|Footprinting]]
+- [X] [[./THEORY/scanning.wiki|Scanning]]
+- [ ] [[./THEORY/enumeration.wiki|Enumeration]]
+- [o] [[./THEORY/hacking_win.wiki|Hacking Windows]]
 
 == Laboratory ==
 
-	* [[./LAB/HackingUnix.wiki|Hacking Unix]]
+- [X] [[./LAB/HackingUnix.wiki|Hacking Unix]]
+- [o] [[./LAB/web_security.wiki|Web Security]]
 
 
 ===== Disclaimer =====

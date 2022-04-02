@@ -67,4 +67,115 @@ and we can go up to:
 _001_1 1111 1111 1111 ::
 }}}
 
+==== Structure of a IPv6 GUA ====
 
+| Global Routing Prefix | Subnet Id | Interface ID |
+| 48bit                 | 16bit     | 64bit        |
+
+This sctructure is also known as the 3-1-4 Rule: 3 hextets for the prefix, 1 for the subnet id and 4 for the interface id. Subnetting is also easy following this rule, just increment by 1 in hexadecimal the Subnet ID. 
+
+=== Link-Local Unicast ===
+
+Link-Local unicast addresses are used to communicate with other devices on the link, and are not routable off the link. An IPv6 device must have at least a link local address, and it can be created *automatically* or *statically*:
+	* Automatic:
+		- First then bits: *FE80*
+		- Interface id generated using EUI-64 or random
+	* Static: manual configuration by sys admin.
+
+
+==== Structure of IPv6 Link Local ====
+
+
+| 1111 1110 10xx xxxx | remaining 54 bits | Interface id 64 bits |
+
+==== EUI-64 ====
+
+EUI-64 is an algorithm used to generate an IPv6 interface id starting from the MAC address of a device.
+
+{{{
+FC|99|47|75|C3|E0
+FC|99|47|FF|FE|75|C3|E0
+1111 1100|99|47|FF|FE|75|C3|E0
+1111 11100|99|47|FF|FE|75|C3|E0
+FE|99|47|FF|FE|75|C3|E0
+}}}
+
+Link Local Unicast addresses cover an important role in IPv6, in fact the Neighbour discovery protocol and the SLAAC work thanks to the Link-Local Unicast.
+
+== ICMPv6 Neighbor discover protocol ==
+
+In ICMPv6 neighbor discover 5 kinds of packet are used: *Router solicitation*, *Router Advertisement*, *Neighbor Solicitation*, *Neighbor Advertisement* and *Redirect Message*. The first two are used for dynamic address allocation, the second twos are used for address resolution (similar to IPv4 ARP), and the last is similar to ICMPv4 redirect message. 
+
+=== Address resolution ===
+
+Neighbor solicitation and Neighbor advertisement are the IPv6 spiritual heirs of IPv4's ARP request and ARP reply, but the underlying operations are performed differently: in IPv4 the ARP request is sent in broadcast, in ICMPv6 address resolution *neighbor solicitation* packets are sent in multicast.
+
+{{file:./imgs/address_res.png}}
+
+=== Dynamic address allocation ===
+
+The dynamic address allocation in IPv6 is perfomed differently from the dynamic address allocation of IPv4. In fact in IPv4 a DHCP server was needed to assign IP addresses taken from a pool to a client.
+
+In IPv6 a DHCPv6 server is not needed, in fact the *Stateless Address Autoconfiguration* can be used. The SLAAC is perfomed via two ICMPv6 messagges: *Router Solicitation* and *Router Advertisement*. The *Router Solicitation* is sent by a client via multicast to all *IPv6 routers* on the network, asking for informations. A *IPv6 router* will send a *Router Advertisement* to all the IPv6 devices, this kind of message can contain a different amount of informations depending on which configuration has to be used. There are three possibilities:
+
+1. SLACC
+2. SLAAC with stateless DHCPv6 (only for DNS information but no record of which address is assigned to which host)
+3. Stateful with DHCPv6
+
+In case of the first option inside the *Router Advertisment* are prensent only: *Prefix*, *Prefic-lenght*, and *defauult gateway*. With the second option are sent the same informations of the first, plus the indication to get additional information (like DNS) from a DHCPv6 server. In the third case the *Router Advertisement* contain only the default gateway, but for all the other informations have to be requested to an DHCPv6 server.
+
+In the first case the interface ID is chosen by the host, and it can chose the interface id via EUI-64 or randomly for privacy reasons. Although there are few possibility of a duplicated unicast addresses Duplicate Address Detection (*DAD*) is used, it use the *Neighbour solicitation* and *Neighbour advertisement* to discover if there is another device with the same unicast address.
+
+Also in the second case the interface ID is chosen by the host, but in this case, the *Router Advertisement* will warn the host that additional options have to be asked at a DHCPv6 server. In reality this procedure is implemented in the following way: the router advertisement has the *O* flag setted (O for Options). After the creation of its interface ID the host will send a solicit to all DHCPv6 servers (multicast). The it will receive an advertise (unicast), upon the receive of the advertise the host will send a Information Request (multicast) and it will receive a Reply (unicast). 
+
+In the third case, however, the router advertisement has the M flag setted, so the host will only use the default gateway from the router advertisement and has to contact a DHCPv6 server to obtain addressing informations. The host will send a solicit to all DHCPv6 servers (multicast). The it will receive an advertise (unicast), upon the receive of the advertise the host will send a Information Request (multicast) and it will receive a Reply (unicast). 
+
+=== DHCPv6 Prefix delegation ===
+
+When IPv4 is used, the ISP will provide one public IPv4 address for the Home router interface, and private address space is used inside the home network. For this reason there is the need of NAT. IPv6, on the other hand, will provide full reachability. The home router will request a IPv6 address from the ISP, the same prefix will then be used for the home network, permitting full reachability of the devices. 
+
+
+=== Multicast  ===
+
+IPv6 Multicas addresses are used to send a single packet to multiple destination simultaneously, there are two kind of multicast addresses: *assigned* and *solicited*. IPv6 addresses have the *FF00::/8* prefix and can be logical represented in the following way:
+
+
+| 1111 1111 | Flag | Scope | Group ID |
+
+The flag field is used to distinguish the assigned and solicited multicast addresses from the non-permanent ones: *0* from permanent, well know multicast addresses assigned by IAN, *1* for non-permanently assigned addresses. The scope field is used to define the range of the multicast packet:
+
+* *0* is reserved;
+* *1* interface-local scope
+* *2* link local
+* *5* Site-Local
+* *8* Organization-Local
+* E Global
+
+{{file:./imgs/multicast-table.png}}
+{{file:./imgs/multicast-table2.png}}
+
+
+== IPv6 Header ==
+
+Let's analyze the IPv6 header highlighting the differences between IPv6 and IPv4 header. The main differences are: 
+
+
+| IPv6                                                                                                             | IPv4                                                                                                 |
+|------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------|
+| Fixed 40 bytes size                                                                                              | Variable header length                                                                               |
+| No option nor padding fields                                                                                     | Option and padding fields present                                                                    |
+| given the fixed size no `Total Lenght` and `Internet Header Lenght` are needed, only `Payload lenght` is present | `Total Lenght` and `Internet Header Lenght` fields are needed to know the actual size of the header. |
+| Hop Limit                                                                                                        | Time To Live                                                                                         |
+| No checksum, upper layer protocols take care of it                                                               | Checksum field present                                                                               |
+| Next Header                                                                                                      | Options                                                                                              |
+
+
+IPv6 introduces Extension Headers, they permit the elimination of the `options` and `padding` fields, while providing flexibility to the protocol itself. 
+
+The `next header` field identify the protocol carried in the data portion of the packet or the presence of an extension header, *Extension Headers* are optional and follow the main IPv6 header and provide flexibility and features to the main IPv6 header for enhancements. Order of Extension Headers matter. 
+
+{{file:./imgs/exten-header.png}}
+
+=== Fragmentation === 
+
+Another key difference between IPv4 and IPv6 is how the two protocols manage the fragmentation of packets. In IPv4 in fact if a packet has to be routed by a router on a link with MTU smaller that the size of the packet, it will be fragmented to be able to use that link. IPv6, like a true chad, do not allow routers to fragment packets: the sender will use the MTU of the interface, if at some time, the MTU is to big for a given link the router that cannot forward the packets will drop them and send an ICMPv6 message back to the sender. The message contains informations about the MTU that has to be used, up receiving a *Packet too big* message the sender will re-send the packet with smaller MTU. 

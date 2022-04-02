@@ -3,11 +3,11 @@
 In this (and the following) pages there are my personal note taken when attending the [[https://twiki.di.uniroma1.it/twiki/view/Reti_Avanzate/InternetOfThings2021|IoT Course]]
 
 == Theory ==
-	* [[./THEORY/f_wireless_systems.wiki|Fundamentals of Wireless Systems]]
-	* [[./THEORY/power_efficient_communication.wiki|Power Efficient Communication]] - to be completed
-	* [[./THEORY/f_cellular_systems|Fundamentals of Cellular Systems]]
-	* [[./THEORY/locgical_channels.wiki|Logical Channels]]
-	* [[./THEORY/procedures.wiki|Procedures]]
+- [X] [[./THEORY/f_wireless_systems.wiki|Fundamentals of Wireless Systems]]
+- [ ] [[./THEORY/power_efficient_communication.wiki|Power Efficient Communication]] - to be completed
+- [ ] [[./THEORY/f_cellular_systems|Fundamentals of Cellular Systems]]
+- [ ] [[./THEORY/locgical_channels.wiki|Logical Channels]]
+- [ ] [[./THEORY/procedures.wiki|Procedures]]
 
 == Lab ==
 	* Introduction to C++

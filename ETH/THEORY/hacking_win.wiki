@@ -1,3 +1,47 @@
+= Contents =
+        - [[#Hacking Windows|Hacking Windows]]
+                - [[#Hacking Windows#Introduction|Introduction]]
+                - [[#Hacking Windows#Unauthenticated Attacks|Unauthenticated Attacks]]
+                        - [[#Hacking Windows#Unauthenticated Attacks#Authentication Spoofing|Authentication Spoofing]]
+                                - [[#Hacking Windows#Unauthenticated Attacks#Authentication Spoofing#Password Guessing|Password Guessing]]
+                                        - [[#Hacking Windows#Unauthenticated Attacks#Authentication Spoofing#Password Guessing#Countermeasures|Countermeasures]]
+                                - [[#Hacking Windows#Unauthenticated Attacks#Authentication Spoofing#Importance of hashing passwords|Importance of hashing passwords]]
+                                - [[#Hacking Windows#Unauthenticated Attacks#Authentication Spoofing#Eavesdropping on Network Password Exchange|Eavesdropping on Network Password Exchange]]
+                                        - [[#Hacking Windows#Unauthenticated Attacks#Authentication Spoofing#Eavesdropping on Network Password Exchange#Rainbow Table|Rainbow Table]]
+                                        - [[#Hacking Windows#Unauthenticated Attacks#Authentication Spoofing#Eavesdropping on Network Password Exchange#Countermeasures|Countermeasures]]
+                                - [[#Hacking Windows#Unauthenticated Attacks#Authentication Spoofing#Man in The Middle|Man in The Middle]]
+                                        - [[#Hacking Windows#Unauthenticated Attacks#Authentication Spoofing#Man in The Middle#Countermeasures|Countermeasures]]
+                                - [[#Hacking Windows#Unauthenticated Attacks#Authentication Spoofing#Pass-The-Hash|Pass-The-Hash]]
+                                                - [[#Hacking Windows#Unauthenticated Attacks#Authentication Spoofing#Pass-The-Hash#Implementation of LSAEncryptMemory|Implementation of LSAEncryptMemory]]
+                                - [[#Hacking Windows#Unauthenticated Attacks#Authentication Spoofing#Pass-The-Ticket|Pass-The-Ticket]]
+                                        - [[#Hacking Windows#Unauthenticated Attacks#Authentication Spoofing#Pass-The-Ticket#Countermeasures|Countermeasures]]
+                        - [[#Hacking Windows#Unauthenticated Attacks#Remote Unauthenticated Exploits|Remote Unauthenticated Exploits]]
+                                - [[#Hacking Windows#Unauthenticated Attacks#Remote Unauthenticated Exploits#Countermeasures|Countermeasures]]
+                                - [[#Hacking Windows#Unauthenticated Attacks#Remote Unauthenticated Exploits#End User Application Exploits|End User Application Exploits]]
+                                        - [[#Hacking Windows#Unauthenticated Attacks#Remote Unauthenticated Exploits#End User Application Exploits#Countermeasures|Countermeasures]]
+                        - [[#Hacking Windows#Unauthenticated Attacks#Device driver exploits|Device driver exploits]]
+                                - [[#Hacking Windows#Unauthenticated Attacks#Device driver exploits#Countermeasures|Countermeasures]]
+                - [[#Hacking Windows#Authenticated Attacks|Authenticated Attacks]]
+                                - [[#Hacking Windows#Authenticated Attacks#SYSTEM Status|SYSTEM Status]]
+                        - [[#Hacking Windows#Authenticated Attacks#Countermeasures|Countermeasures]]
+                        - [[#Hacking Windows#Authenticated Attacks#Dictionary attack|Dictionary attack]]
+                        - [[#Hacking Windows#Authenticated Attacks#Grab password hashes|Grab password hashes]]
+                                - [[#Hacking Windows#Authenticated Attacks#Grab password hashes#Countermeasures|Countermeasures]]
+                        - [[#Hacking Windows#Authenticated Attacks#NTLM Hash Algorithm|NTLM Hash Algorithm]]
+                        - [[#Hacking Windows#Authenticated Attacks#Brute force and Dictionary attacks|Brute force and Dictionary attacks]]
+                                - [[#Hacking Windows#Authenticated Attacks#Brute force and Dictionary attacks#Countermeasures|Countermeasures]]
+                        - [[#Hacking Windows#Authenticated Attacks#Dumping cached password|Dumping cached password]]
+                                - [[#Hacking Windows#Authenticated Attacks#Dumping cached password#Countermeasures|Countermeasures]]
+                - [[#Hacking Windows#Remote Control and Back doors|Remote Control and Back doors]]
+                        - [[#Hacking Windows#Remote Control and Back doors#PsExec|PsExec]]
+                        - [[#Hacking Windows#Remote Control and Back doors#Graphical Remote Control|Graphical Remote Control]]
+                        - [[#Hacking Windows#Remote Control and Back doors#Port Redirection|Port Redirection]]
+                - [[#Hacking Windows#Covering Tracks|Covering Tracks]]
+                        - [[#Hacking Windows#Covering Tracks#Disabling Auditing|Disabling Auditing]]
+                        - [[#Hacking Windows#Covering Tracks#Alternate Data Stream|Alternate Data Stream]]
+                        - [[#Hacking Windows#Covering Tracks#Rootkits|Rootkits]]
+                                - [[#Hacking Windows#Covering Tracks#Rootkits#Countermeasures|Countermeasures]]
+
 = Hacking Windows =
 
 == Introduction ==
@@ -280,6 +324,8 @@ auditpol / disable
 
 to stop the auditing, this command is part of the operating system itself. At the beginning of the attack, creation of backdoor and creation of toolkit the hacker will disable the `auditpol` and the restart it before leaving the system. Another tool that can be used is `elsave`, that allow to do selective cleaning of the log.
 
+=== Alternate Data Stream ===
+
 After the deletion of the evidence of the attack in the log, the attacker has to _hide_ the presence of maliciously installed software. An easy way is to use the `+h` attribute that sets an hidden bit that hide the file in the folder. The more complicated, but more powerful, way is the use of *Alternate Data Stream*; alternate data stream is a feature of NT filesystem designed for compatibility with Macintosh, it permits to hide a file within a file. 
 The alternate data stream can contain additional data and/or metadata so a file was composed by:
 
@@ -288,3 +334,27 @@ The alternate data stream can contain additional data and/or metadata so a file 
 	* alternate stream which contains huge amount of metadata (like icon bitmap)
 
 Alternate Stream can be used to contain hidden huge amount of data, because the operating system do not show the size of the alternate data stream. However it's very easy to remove all Alternate Datastream of a file, just copy the file to a FAT partition and then back to NTFS.
+
+The name of alternate datastream can be any string, also a random alphanumeric string, making alternate data streams more difficult to find. `cp` command can copy one alternate datastream to another, with `LADS` or `SFIND` it's possible to detect alternate datastreams.
+
+=== Rootkits ===
+
+Rootkits are used to hide malicius processes running on a machine, but also files, accounts and back doors. They are a very flexible tool to mantain the attack stealthy. In order to install a rootkit the attacker has to be system administrator, the most powerful *rootkit* is the *kernel rootkit*, and it's installed in a similar way as the drivers are installed. The kernel rootkit takes posses of the kernel jump table. The kernel jump table, which is a vector of $n$ location, and each location correspond to a sys call. In each location there is a pointer to an executable code of the correspondent *sys call*.
+
+When the rootkit takes posses of the kernel jump table, it can call a malicious version of a system call before calling the real one (system call interposition). It have full control on the views that the users have on the operating system, in practice the machine is under the control of the attacker. The administrator can do nothing to counter a *kernel rootkit*. A way to identify the presence of a rootkit, boot the system with a live operating system searching for the presence of mismatch of result of sys calls.
+
+There are several kind of rootkits: *persistent* (survive to reboot, installing the code on the filesystem of the target), *memory based* (are installed only on ram, they do not survive reboot but no evidence) they are launched with ram disks. Another huge distinction is between *kernel* and *user* rootkits. 
+
+*User rootkits* can intercept modify the outcome of a sys calls by modifying a library (C library, Java and so on); it's a simpler type of rootkit but it can be easily detected. The administrator should invoke system calls trough kernel and library to see if there are differences. 
+
+*WHIPS*, Windows Intrusion Detection System, was a rootkit designed to make the Windows operating system more reliable. 
+
+
+=== Countermeasures ===
+
+If a system as been compromised with administrator privileges, the OS has to be reinstalled completely. If the OS can't be reinstalled four areas have to be covered: *Files*, *Registry Key*, *Processes* and *Network Ports*.
+
+* *Files*. We have to look for suspicious files, like known dangerous name (`netcat`) or `vnc` files. Then run an antivirus software through a live operating system on the filesystem as read-only mode. Also we can use `tripwire` to check for changes to filesystem and for startup programs.
+* *Registry Keys*. There can be suspicious entry in the registry: entry of `vnc` or `NetBus`. Malicious keys can be removed with `reg delete` command. Another thing related to backdoors is the *Autostart Extensibility Points*, it contains all the programs executed at boot time, the attacker use back door like that when it's doing lateral movement.
+* *Processes*. Checks for malicious processes with CPU utilization, end process or kill it and then check the scheduler queue: `schtasks`, `task`.
+* *Network*. Use `netstat -aon` to see all the network connections.

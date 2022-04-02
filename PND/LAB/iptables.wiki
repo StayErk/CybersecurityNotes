@@ -1,0 +1,33 @@
+	= iptables =	
+
+== LAB 4 - ex1 ==
+
+We want regulate the traffic that we want accept. We want to block ICMP echo request:
+
+{{{
+iptable -A INPUT -p icmp --icmp-type echo-request -J DROP
+}}}
+
+The host receives the packets but do not process them.
+
+{{{
+iptable -A INPUT -p icmp --icmp-type echo-request -J REJECT
+}}}
+
+The client receive a ICMP packet that notifies that the connection cannot be done. 
+
+iptables is the implementation of a packet filtering firewall for linux that runs in kernel space, with it we can manipulate the rules of the packet filtering table. It operate on network and transport layer. 
+
+== Fundamentals ==
+
+We need a set of rules that have to be applied to the incoming and outgoing packets. Rules are grouped in TABLES, each table has a different chain of rules and each packet is subject to each rule of a table. Some tables filter the packets and other manipulate them. Tables can have different chains, we can use chain to group rules with different meanings: when routing, sending or receiving.
+
+=== Filter Table ===
+
+In the Filter table are present three chains: INPUT, OUTPUT, FORWARD. 
+
+Usually a script that introduces and saves all the rules is used, but another option is to use the commands iptables-save and iptables-restore. 
+
+*LOG* rule exception to "a packet will match only a rule". The `state` module permit to specify rules regarding the state of a connection.
+
+FTP connection: use related for ICMP

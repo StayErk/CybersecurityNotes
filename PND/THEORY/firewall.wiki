@@ -1,0 +1,117 @@
+= Firewalls =
+
+A router is a device that makes traffic flows, it's possible to introduce some kind of regulation to determine if packets are allowed to travel from one network or another. If we are not using firewall, every host is exposed, but we want to restrict the access from the outside internet,  and also to restrict the outgoing traffic. 
+
+In order to determine the security of a given network we can regulate which traffic is allowed (*firewall*), encrypt the traffic (*IPsec*, *VPNs*), and monitor traffic and hosts looking for _bad behaviour_ (*IDS*). 
+
+== Firewall design & architecture issues ==
+
+When dealing with security there are some concepts to take into account:
+
+	* Least privilege: be sure to give a device the least privileges as possible to perform it's function
+	* Defense in depth
+	* Choke point: be sure that the safe part of the network can be accessed only by a single point
+	* Weakest Link: security of a system is based on the
+	* Fail-safe stance: if something go wrong (firewall breaks) the network is in a safe state
+	* Universal Participation
+	* Diversity of defense: use different types of defense mechanism
+	* Simplicity: easily to check and configure
+
+== Host Based packet filtering ==
+
+It's a kind of firewall that decide if a single packet can go in or out, so it decides the flow of the packets. Tools can be `iptables` or `windows firewall`, the host based packet filtering as the name says it referred to a single hosts, and regulate if a packet can be sent or received by a single host. 
+
+== Screening Router ==
+
+In this case we have to decide if a given flow of traffic can enter (or leave) the network. A low level check can be applied to regulate the access in a simple approach: if a packets comes from a give host accept or reject, this approach is the *Access Control List* based.  A Network Access Control Lists that distinguish between incoming and outgoing traffic per interface/port and it is stateless; so every packet is treated independently without any knowledge of what has come before.
+
+=== Dual-homed host ===
+
+It is a host that has at least two interfaces which runs a firewall service. A *Bastion host* is an hardened computer used to deal with all traffic coming to a protected network from outside. *Hardening* is the task of reducing or removing vulnerabilities in a computer system:
+
+	* shutting down unused or dangerous services
+	* access controls on vital files
+	* removing unnecessary account and permission
+	* using stricter configurations for vulnerable components
+
+A Bastion host cam be used for application proxy gateway, and can perform more complex operations like stateful filtering.
+
+== DMZ ==
+
+It is like an air gap between the internal network and the internet, and realize a secure segregation of the network and services; it reduce and regulate the access to internal (private) components of the IT system. DMZ is used to provide a multilayered, defense-in-depth approach. 
+
+=== Defense in depth ===
+
+It is a security approach that uses multiple overlapping system for protection adding redundancy and aim to reduce the presence of single point of failures.
+
+{{file:./imgs/dmz-screened.png}}
+
+The most common configuration for a DMZ is the following:
+
+{{file:./imgs/dmz-2.png}}
+
+A second configuration is to segment the network using a single firewall that has several rules. The cons. of this approach are the complexity and the fact that the firewall is a single point of failure. 
+
+== Networking security - first implementation ==
+
+Using a firewall to filter ingoing and outgoing traffic between the internal network and the internet. The first type of firewall is the *packet-filtering router* that can pass or drop a packet. We have different assumptions: there is a security policy that states what's allowed, it's possible to identify _good_ and _bad_ traffic, and third the firewall is _immune to penetration_. 
+
+=== Packet filters - stateless ===
+
+It can drop packets based on their source or destination, port numbers or flag, and every packet is individually evaluated. It can operate in incoming, outgoing or both interfaces and check packets with fake IP addresses. 
+
+It operate in Data Link and Network layer,  and a little bit on Transport layer (misses the sequence number, so no state).
+
+To write a rule we have to follow three steps:
+
+1. know the policy
+2. translate the policy in a formal language
+3. rewrite the policy in terms of the firewall syntax
+
+Rules are checked form top to bottom, the first matching rule is applied and if no rule match, a default one is applied.
+
+
+{{file:./imgs/pack-fil-1.png}}
+
+{{file:./imgs/pack-fil-2.png}}
+
+
+Note that we are not checking the direction of the traffic, this can lead to a lot of problems: There is no control of the type of traffic originated from port 25 and coming from the outside. 
+
+The direction of the traffic can be checked by considering the TCP flags: *no ack* outgoing, *ack* incoming.
+
+==== Filter rules for network firewalls ====
+
+Consider the following example in which there are 4 interfaces, Internal net 1 is a DMZ and we want to limit the connection between the mail gw and the internet, between mail gw and net 2 and net 3 but net 2 and net 3 can go to the internet and between each other. 
+
+We have to consider where packets have to go, and from where packets are arriving. 
+
+
+{{file:./imgs/router-rules-1.png}}
+
+Block all the requests coming from the Internet with IP addresses of net 1, 2 and 3; then we want to allow all the traffic that comes from outside with destination net 1, 2 with ACK flag.
+
+This approach has some limitations:
+
+* small number of parameter;
+* payload of TCP is not inspected;
+* limited logging;
+* no authentication;
+* susceptible to attacks based on TCP, IP implementation vulnerabilities.
+
+== Staful Firewall ==
+
+Instead of evaluate each packet for itself, the firewall can check if there is an ongoing connection and that packet belong to that connection. Solve the problem of simple packet filter: know if an incoming traffic for a high-numbered port is a genuine response to a previous outgoing request to a set up connection. We consider the full *Transport Layer*. 
+
+{{file:./imgs/conn-track.png}}
+
+The firewall recalls if there is an ongoing connection, so it can make a decision checking the *state table* (connection tracking table in iptables). We can also generalize this concept for UDP and other protocols:
+
+{{file:./imgs/udp-conn.png}}
+
+the above can be also applied for ICMP. 
+
+
+== Application-Level filtering ==
+
+If the firewall takes into account also the payload we talk about application level filtering, and it works like a proxy. Has a good amount of logging

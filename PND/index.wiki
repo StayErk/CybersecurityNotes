@@ -1,4 +1,6 @@
 = Pratical Network Defense index 🔒 =
 
 == Theory ==
-	* [[./THEORY/ipv6.wiki|IPv6]]
+- [ ] [[./THEORY/ipv6.wiki|IPv6]]
+- [o] [[./THEORY/firewall.wiki|Firewalls]]
+	- [ ] [[./LAB/iptables.wiki|Iptables]]
