@@ -4,10 +4,11 @@ In this (and the following) pages there are my personal note taken when attendin
 
 == Theory ==
 - [X] [[./THEORY/f_wireless_systems.wiki|Fundamentals of Wireless Systems]]
-- [ ] [[./THEORY/power_efficient_communication.wiki|Power Efficient Communication]] - to be completed
+- [ ] [[./THEORY/power_efficient_communication.wiki|Power Efficient Communication]]
 - [ ] [[./THEORY/f_cellular_systems|Fundamentals of Cellular Systems]]
 - [ ] [[./THEORY/locgical_channels.wiki|Logical Channels]]
 - [ ] [[./THEORY/procedures.wiki|Procedures]]
+- [ ] [[./THEORY/adhoc.wiki|AdHoc wireless networks]]
 
 == Lab ==
 	* Introduction to C++

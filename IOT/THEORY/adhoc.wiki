@@ -1,0 +1,67 @@
+= AdHoc Wireless Networks =
+
+The kind of AdHoc wireless networks used in IoT, tend to have some problems due to the needs of the devices themself. First of all IoT networks are highly dynamic, because of device mobility, and energy saving procedures; of course there is also the need of design low energy protocols adding constraints regarding memory and energy consumption. The code, and the logic of the protocol has to be simple because sensing devices have small storage capabilities.
+
+Another issue is represented by the scalability: there can be thousands or hundreds of thousands devices. In this kind of networks we differentiate to types of devices: *sensors* and *sinks*, the traffic is only between this to kind of decides; sinks are capable of perform management operation and to collect data, where sensors only send informations to sinks. *Broadcast* and  *Converstasting* (? sending commands and configuration settings). 
+
+The problem is that standard ad hoc networks do not scale very well and have high energy consumption because them were not designed with Internet Of Things in mind.
+
+== Medium Access Control ==
+
+Since we have to deal with broadcast channel, two devices communicating at the same time will generate a collision. Differently from Cellular System, in which there is a central element (BTS) that receives the informations and schedules the allocation of resources for each user (Time Advance techniques, Frequency Division and in general slotted approaches). In AdHoc networks there is no central element, but only peers, so solving the MAC protocol is challenging. Giving the high dynamic topology, the implementation of the MAC protocol require synchronization and dynamic association of channels.
+
+Given the fact that its very difficult to implement the above in a fully distributed setting so in the majority of cases the MAC is handled using Random Access approach like CSMA, in particular CSMA/CA. 
+
+CSMA/CD can't be used in this setting because, signal communicated over wireless channel attenuates with function of distance leading to *hidden terminal problem* and the *exposed terminal problem*. Also devices are not capable of receiving and receiving at the same time. 
+
+In this scenario a variant of CSMA/CA is used. Before transmitting a frame, the sender sense the carrier, so if the channel is free for a *Distributed InterFrame Space* the node transmit the packet. If the sender node sees that the channels is in use it waits for the transmission for a random backoff time that doubles for each failed tentative.
+
+The destination after receiving a packet will wait a SIFS *Short InterFrame Time* and then will send an ACK confirming the reception. (SIFS has to be smaller than DIFS because this limits the possibility of other nodes sending packets when a communication is not finished). This approach, however does not remove the probability of collisions: because of the hidden terminal problem they can happen.
+
+An improvement is represented by the *Virtual Carrier Sensing*. It works by transmitting a small control packet (Request to Send) before the actual data; this control packet is broadcasted to all the neighbors. The RTS contains the estimated time that the sender needs to send the data. The devices receiving the RTS will not use the channel for the NAV time, if there is no collision on RTS the destination will answer with a *clear to send* in broadcast containing an updated NAV field. If the sender correctly receives the CTS it will sends the actual data and wait for an ACK. Because the RTS, and CTS are broadcasted they can block the possibility of collision.
+
+Other approaches have been proposed in literature, TDMA and hybrid based approaches are difficult to implement in a distributed or highly dynamic scenarios. They can be applied only in specific settings.
+
+== Routing ==
+
+Routing in traditional wireless systems two approaches are used, the distance vector approach (RIP) or a link state approach (OSPF). In the latter case, We assume that nodes can acquire info on the topology of the network (via the exchange of control informations between routers) and run a shortest path algorithm; the main problem with this approach is that in AdHoc network are very dynamic, so a lot of control informations have to be exchanged. The former approach, the distance vector one, it computes the shortest path between each pair of devices using only a local exchange of informations between  neighbors. The algorithm used is a distributed version of the Bellman-Ford Algorithm with the assumption of non negative cycles (so no negative labels). In this approach there is no need to know all the topology of the network, but only who are the neighbors to correctly estimate the shortest path, also no synchronization is needed.
+
+{{file:./imgs/bellman-ford.png}}
+
+The problem of this approach is the *count to infinity problem*, some corrections can be used to limit this problem. In case of a fixed diameter of the network it's possible to use a TTL to discard all packets that move more than $x$ ops. *Split horizon with poison reverse*, on the other hands limits the exchange of informations: if a node *z* update the information on a path passing through *y* will not send the update to *y* to avoid a loop; split horizon with poison reverse, however, do not solve the problem.
+
+The features of routing in ad hoc networks are:
+
+1. Multi-hop capabilities
+2. Dynamic topology
+3. _No loops_
+4. Minimal control overhead
+5. Low Processing overhead
+6. Self-starting
+
+To implement the above features two approaches can be used.
+
+
+=== Proactive ===
+
+Proactive approach is based on traditional distance-vector and link-state protocol, where each node maintains route to each other node, given the high dynamicity of the network periodic or event triggered routing updates have to be used causing overhead. Also this first approach does not solve the problem of _loops_ and count to infinity problem.
+
+Charlie Perkins, introduced the concept of freshness to estimate how good a route is. The concept is based on *sequence numbers* to reflect the _time_ in the network topology to assure freshness forcing the re-computation of the new values of the links. The sequence number can be forced to change when there is a change of topology; the sequence number is changed locally and  broadcasted: if an estimate with high sequence number is received will be used, if multiple estimates with the same sequence number are received (or the nodes already has an estimate with the same sequence number) the less costly is chosen. 
+
+To detect the change of a link's cost hello messages are used: if no hello messages is received for some time the link is _suspected_ broken, and the cost goes from $1$ to $\infty$. 
+
+{{file:./imgs/sequence.png}}
+
+Newly recorder router are scheduled for immediate advertisement ($\infty$ to finite value), also as soon as a route cost changes the node may delay informing its neighbors, but immediately start using the newest info for its own forwards. 
+
+==== OLSR ====
+
+Optimized Link State Routing is a proactive link state protocol for MANETs, and its suited for large and dense ad hoc networks. The key concept is to decrease the overhead of flooding by choosing a subset of nodes in charge of forwarding information during the flooding process, requiring only partial link state to be flooded. This optimization is implemented through the *Multipoint Relay*, and it's selected by at least one of its 1-hop neighbor to relay all the valid topology updates. This protocol is fully distributed and can be tuned to increase reactivity to topological changes, furthermore it can tolerate some losses.
+
+{{file:./imgs/pck-oslr.png}}
+
+Each neighbor will be able to know its 2-hop neighbors, and select its *Multipoint Relay*. 
+
+{{file:./imgs/oslr-algo.png}}
+
+Smaller the *MPR(X)*, less is the control overhead in the network. After the computation of the *MPR(X)*, the real topology graph it's not known by any node, a logical topology is used and a shortest path algorithm is applied to fill a router table. 
