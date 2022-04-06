@@ -1,0 +1,65 @@
+= NAT =
+
+
+== Routed vs Transparent Mode ==
+
+In the routed mode, a firewall is a hop in the routing process, so it is a router responsible of its own internal networks.
+In the transparent mode, a firewall takes decision transparently from the host, and its located at layer two of the network. It can implemented using bridged NICs and it is not seen as a router hop to connected devices. The do not have an IP that is visible to the host. 
+
+=== Routable IP Addressing ===
+
+A distinction between public IP addresses and private IP addresses was created to manage the limited number of IPv4 addresses. The public IP addresses are the only kind of addresses routable. Non-routable addresses are the: *private*, *loopback*, *shared* and *research* addresses. 
+
+We can use the Address Translation to replace the private ip address to a public ip address, allowing thousands of devices to share a pool of public addresses.
+
+So the NAT connects the internet to a network that uses a private addressing space. The features of NAT are:
+
+* Can filter requests from hosts on WAN side to hosts on LAN side
+* Allow host requests from the LAN side to reach the WAN side
+* Does not expose LAN hosts to external port scans
+
+Firstly it was implemented to let a private network to use just one IP address provided by ISP to connect to the internet; allowing to change address of devices in the private network without notifying outside world. Everything is hidden so devices inside a private network are not directly visible from the outside (can be considered a security plus). End-to-end connectivity is the best feature desiderable, that can't be obtained with NAT.
+
+=== Source NAT ===
+
+The firewall (or the netting device) removes the internal private source address and inserts its own public ip addresses. There is a need for a translation at IP level (Network layer) and a translation at Transport Layer, to distinguish sessions from different internal hosts to the same external host. Its possible to realize dynamic source NAT via *MASQUERADE* 
+
+A NAT Table is stored in the natting device that recall the temporary associations between internal hosts and connection.
+
+==== Basic NAT ====
+
+There is a block of external public IP addresses using for translation, so outbound packets will be modified changing the IP, and protocol fields. 
+
+==== NAPT ====
+
+NAPT permits to translate private addresses with just one public IPv4; it translates also the transport identifiers like TCP and UDP ports. In Cisco NAPT is called PAT (port address translation).
+
+{{file:./imgs/napt.png}}
+
+
+{{file:./imgs/napt2.png}}
+
+NAPT routers block all incoming ports by default if there is no match in the NAT table, its like a default deny rule. Of course this is a limitation if We want to expose a service. There are several different ways to expose a internal host: *static port forwarding*, *dmz* or *application level gateways* and *universal plug and play*.
+
+=== Destination NAT ===
+
+DNAT enables servers located inside a firewall/router NAT to be accessed. It translates incoming packets from the firewall  public IP address to the internal address of the server; from the client prospective the service is hosted by the firewall. The differences between DNAT and SNAT only refers to the initial translation.
+
+
+=== Advantages and Cons ===
+
+NAT is a panacea, given the fact that nothing can enter if its not related to a established connection can be used as a security mechanism. Furthermore NAT is a simple gateway between internet and internal networks, implement simple security and privacy security hiding, and at the same time consent independent control of private addressing and global address pool conservation. 
+
+However many applications do not work with NAT: applications with realm specific IP address information in payload the translation is applied only in the headers, leading to a mismatch. Multiple connection at the same time are not possible and peer-to-peer application can't work.  Encrypted protocols do not work well inside nat, they need special changes. Some mitigation are possible to use the above kind of applications inside a NAT. 
+
+All the benefit of NATting, with the benefit of full reachability can be implemented in IPv6:
+
+{{file:./imgs/nat-ipv6.png}}
+
+==== Hole Punching ====
+
+Hole Punching is a method for establishing bidirectional connections between hosts, both in private networks using NAT; the main idea is to find the public IP address of the peer initiate a connection to create a NAT state to correctly pass the replies (*STUN*).
+
+{{file:./imgs/stun.png}}
+
+

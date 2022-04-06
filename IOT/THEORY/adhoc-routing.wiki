@@ -1,0 +1,63 @@
+= AdHoc Routing =
+
+Some routing schemes are designed specifically for AdHoc networks with dynamic topology. Because we have to deal with low power devices, hosts can appear and disappear from the network, and move inside the network, the topology dynamics are really fast. 
+
+An optimization of the distribution of the topology updates, done by the usage of sequence numbers, and by limiting flood of control information.
+
+Proactive routing schemes are costly in term of overhead, because the devices have to exchange control informations to keep updated the routing tables. In IoT applications bandwidth and energy are critical resources; continuos control information exchanges may be a waste of resources.
+
+We can think to move to a Event Based protocol, in which control informations are exchanged only when there is the need to exchange real traffic.
+
+In IoT system, the *Reactive* routing schemes have been proposed. Instead of keeping the routing tables always updated, they are updated only when there is the need to exchange traffic optimizing energy consumption and bandwidth. Of course the reactive routing schemes are _slower_ than the proactive counterpart; before the real exchange of data the routing tables have to be updated.
+
+The source of a communication has to build routes on-demand by flooding the network to discover a _good_ route and use it. The drawback of this approach is the presence of latency for the route acquisition.
+
+== AODB ==
+
+Ad hoc On-Demand Distance Vector Routing is a reactive version of the distance vector routing. There is a local exchange of informations for finding routes, and it use sequence numbers to describe freshness of the routes and provides two procedures:
+
+	* a maintenance of *active* routes, so routes where data is flowing;
+	* and a Route discovery cycle used to find routes.
+
+=== Route Discovery ===
+
+* S checks if it has a route for D
+* If not, it has to start a Route discover cycle. It sends a RREQ packet, that contains the destination address and the freshness of the destination; also there are the source IP address and the real freshness of the source, and the hopcount initialized to 0 and the broadcast ID.
+* S broadcast RREQ to all neighbors.
+* Each neighbor that receives the RREQ makes a reverse route entry for S: dest=S, nexthop=S, hopcount=1, and expiration time.
+	- Then it store the informations about Source node, Source node seq, Destination, Destination seq, and broadcast ID. The it checks if it has a valid route for D.
+	- If not it rebroadcast the RREQ to its neighbors increasing the hopcount field.
+* When C receives RREQ it makes a reverse route for S.
+	- If C has a fresher valid route to D it creates a new control packet: Route Replay RREP, entering destination IP address, it's sequence number, Source IP address, and it's hopcount.
+	- C use it's reverse path to S to send in unicast the reply.
+* A receives the RREP from C, updates its routing table, and using the reverse path to S, sends in unicast the RREP.
+* S receives the RREP and update its routing table with the updated informations.
+
+All the nodes that do not receive the RREP, will timeout after an `ACTIVE_ROUTE_TIMEOUT` deleting the reverse path to the source of the RREQ.
+
+The information are updated and propagated iff the RREP has a greater sequence number, or same sequence number with less hopcount.
+
+Each node maintains the list of active neighbors, because they have to know if the route became invalid (*route maintenance*). The fields of the routing table are:
+
+*routing table fields*
+
+==== What happens in case of errors ==== 
+
+If a node discover that a link is no longer working, it has to advert its neighbors. A route error message  (RERR) will be created and sent to all upstream neighbors increasing the destination number of the destinations affected by the error.
+
+Each node that receives a RERR checks if its using the sender of the RERR as next hope to the destinations indicated in the RERR message. If so deletes
+
+=== Optimizations of AODV ===
+
+In mesh topology, AODV can initiate a sort of flooding of RREQ leading to a potential large amount of RREP. For this reason RREQ have a Time To Live, that increase incrementally to search incrementally larger areas of the network. This approach is called *Expanding Ring Search*, and its used to limit the flood of information to produce less overhead to find a _good_ route to a destination; however if a lot of attempts are needed to find a good route the delay grows, and the flood of informations with it.
+
+Local Repair can be used to optimize the route maintenance *continue*...
+
+
+
+
+== DSR ==
+
+Dynamic Source Routing is another reactive approach, it utilizes _source routing_.
+
+*Overhearing* good for caching but not for energy saving. To deal with collision, to send a reply wait for a random time that depends on the quality of the route and a random parameter. 

@@ -358,3 +358,7 @@ If a system as been compromised with administrator privileges, the OS has to be 
 * *Registry Keys*. There can be suspicious entry in the registry: entry of `vnc` or `NetBus`. Malicious keys can be removed with `reg delete` command. Another thing related to backdoors is the *Autostart Extensibility Points*, it contains all the programs executed at boot time, the attacker use back door like that when it's doing lateral movement.
 * *Processes*. Checks for malicious processes with CPU utilization, end process or kill it and then check the scheduler queue: `schtasks`, `task`.
 * *Network*. Use `netstat -aon` to see all the network connections.
+
+== Windows Security Features ==
+
+
