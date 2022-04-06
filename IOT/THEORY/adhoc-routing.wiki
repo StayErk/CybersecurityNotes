@@ -51,13 +51,30 @@ Each node that receives a RERR checks if its using the sender of the RERR as nex
 
 In mesh topology, AODV can initiate a sort of flooding of RREQ leading to a potential large amount of RREP. For this reason RREQ have a Time To Live, that increase incrementally to search incrementally larger areas of the network. This approach is called *Expanding Ring Search*, and its used to limit the flood of information to produce less overhead to find a _good_ route to a destination; however if a lot of attempts are needed to find a good route the delay grows, and the flood of informations with it.
 
-Local Repair can be used to optimize the route maintenance *continue*...
-
-
+Local Repair can be used to optimize the route maintenance, rather then sending back the information back to the source of the active path, a node can try to locally bypass the broken link (RERR with small TTL). The advantage is that may repair with less overhead if it is capable to repair the error locally. 
 
 
 == DSR ==
 
 Dynamic Source Routing is another reactive approach, it utilizes _source routing_.
+The source routing approach consist in the propagating all the hops inside of the header of the packets from the source to the destination. For this reason the structure of the RREQ and the RREP is different. 
 
-*Overhearing* good for caching but not for energy saving. To deal with collision, to send a reply wait for a random time that depends on the quality of the route and a random parameter. 
+The RREQ identifies the target of the route discovery, contains a route record in which the traversed route is accumulated, and contains a pair: `<initiator, request id>` that uniquely identify the request.
+
+The RREP is sent in unicast to the second-last hop of the source list by the destination. Each hop will then send the RREP to the previous hop until the source is reached. At each RREP received the route table is stored.
+
+The logic implemented to ensure the correctness of the protocol is the following:
+
+* If the pair `<initiator address, request ID>` has recently been seen ther discrd it;
+* If the node ID is already listed in the source route discard it to avoid loops;
+* If the node receiving a RREQ is the destination, it will reply with a RREP; otherwise, append node ID in the source route and rebroadcast.
+
+*Route Maintenance* is implemented by transmitting the two endpoints of a failed link to the source in a route error packet. When receiving a RERR a node has to invalidate all the routes going through that link. Of course if an invalidated link is needed a new route must be discovered.
+
+Some optimizations can be applied to DSR, first of all the intermediate nodes receive a lot of informations, so the can *overhear* the traffic and cache the informations received to get pieces of possible valid routes. If a node knows a route to a given destination (because it has the route in cache) it can immediately answer a RREQ also if is not the destination (of course no encryption used).
+
+*Overhearing* good for caching but not for energy saving. In case of caching different nodes can produce a RREP at the same time, to deal with collision, before sending a reply a node has to wait for a random time that depends on the quality of the route and a random parameter: $\text{time}=C\cdot(h-1+r)$.
+
+Path shortening can be implemented by sending unsolicited RREP. If Y receives a packet by X, but see a long list of nodes in the source route, Y can signal X to communicate directly trough him. Furthermore in case of network disconnection, to avoid a flood of RREQ, an exponential back-off can be set do decrease the quantity of requests; also because RREQ can be heavy.
+
+

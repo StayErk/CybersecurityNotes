@@ -1,46 +1,3 @@
-= Contents =
-        - [[#Hacking Windows|Hacking Windows]]
-                - [[#Hacking Windows#Introduction|Introduction]]
-                - [[#Hacking Windows#Unauthenticated Attacks|Unauthenticated Attacks]]
-                        - [[#Hacking Windows#Unauthenticated Attacks#Authentication Spoofing|Authentication Spoofing]]
-                                - [[#Hacking Windows#Unauthenticated Attacks#Authentication Spoofing#Password Guessing|Password Guessing]]
-                                        - [[#Hacking Windows#Unauthenticated Attacks#Authentication Spoofing#Password Guessing#Countermeasures|Countermeasures]]
-                                - [[#Hacking Windows#Unauthenticated Attacks#Authentication Spoofing#Importance of hashing passwords|Importance of hashing passwords]]
-                                - [[#Hacking Windows#Unauthenticated Attacks#Authentication Spoofing#Eavesdropping on Network Password Exchange|Eavesdropping on Network Password Exchange]]
-                                        - [[#Hacking Windows#Unauthenticated Attacks#Authentication Spoofing#Eavesdropping on Network Password Exchange#Rainbow Table|Rainbow Table]]
-                                        - [[#Hacking Windows#Unauthenticated Attacks#Authentication Spoofing#Eavesdropping on Network Password Exchange#Countermeasures|Countermeasures]]
-                                - [[#Hacking Windows#Unauthenticated Attacks#Authentication Spoofing#Man in The Middle|Man in The Middle]]
-                                        - [[#Hacking Windows#Unauthenticated Attacks#Authentication Spoofing#Man in The Middle#Countermeasures|Countermeasures]]
-                                - [[#Hacking Windows#Unauthenticated Attacks#Authentication Spoofing#Pass-The-Hash|Pass-The-Hash]]
-                                                - [[#Hacking Windows#Unauthenticated Attacks#Authentication Spoofing#Pass-The-Hash#Implementation of LSAEncryptMemory|Implementation of LSAEncryptMemory]]
-                                - [[#Hacking Windows#Unauthenticated Attacks#Authentication Spoofing#Pass-The-Ticket|Pass-The-Ticket]]
-                                        - [[#Hacking Windows#Unauthenticated Attacks#Authentication Spoofing#Pass-The-Ticket#Countermeasures|Countermeasures]]
-                        - [[#Hacking Windows#Unauthenticated Attacks#Remote Unauthenticated Exploits|Remote Unauthenticated Exploits]]
-                                - [[#Hacking Windows#Unauthenticated Attacks#Remote Unauthenticated Exploits#Countermeasures|Countermeasures]]
-                                - [[#Hacking Windows#Unauthenticated Attacks#Remote Unauthenticated Exploits#End User Application Exploits|End User Application Exploits]]
-                                        - [[#Hacking Windows#Unauthenticated Attacks#Remote Unauthenticated Exploits#End User Application Exploits#Countermeasures|Countermeasures]]
-                        - [[#Hacking Windows#Unauthenticated Attacks#Device driver exploits|Device driver exploits]]
-                                - [[#Hacking Windows#Unauthenticated Attacks#Device driver exploits#Countermeasures|Countermeasures]]
-                - [[#Hacking Windows#Authenticated Attacks|Authenticated Attacks]]
-                                - [[#Hacking Windows#Authenticated Attacks#SYSTEM Status|SYSTEM Status]]
-                        - [[#Hacking Windows#Authenticated Attacks#Countermeasures|Countermeasures]]
-                        - [[#Hacking Windows#Authenticated Attacks#Dictionary attack|Dictionary attack]]
-                        - [[#Hacking Windows#Authenticated Attacks#Grab password hashes|Grab password hashes]]
-                                - [[#Hacking Windows#Authenticated Attacks#Grab password hashes#Countermeasures|Countermeasures]]
-                        - [[#Hacking Windows#Authenticated Attacks#NTLM Hash Algorithm|NTLM Hash Algorithm]]
-                        - [[#Hacking Windows#Authenticated Attacks#Brute force and Dictionary attacks|Brute force and Dictionary attacks]]
-                                - [[#Hacking Windows#Authenticated Attacks#Brute force and Dictionary attacks#Countermeasures|Countermeasures]]
-                        - [[#Hacking Windows#Authenticated Attacks#Dumping cached password|Dumping cached password]]
-                                - [[#Hacking Windows#Authenticated Attacks#Dumping cached password#Countermeasures|Countermeasures]]
-                - [[#Hacking Windows#Remote Control and Back doors|Remote Control and Back doors]]
-                        - [[#Hacking Windows#Remote Control and Back doors#PsExec|PsExec]]
-                        - [[#Hacking Windows#Remote Control and Back doors#Graphical Remote Control|Graphical Remote Control]]
-                        - [[#Hacking Windows#Remote Control and Back doors#Port Redirection|Port Redirection]]
-                - [[#Hacking Windows#Covering Tracks|Covering Tracks]]
-                        - [[#Hacking Windows#Covering Tracks#Disabling Auditing|Disabling Auditing]]
-                        - [[#Hacking Windows#Covering Tracks#Alternate Data Stream|Alternate Data Stream]]
-                        - [[#Hacking Windows#Covering Tracks#Rootkits|Rootkits]]
-                                - [[#Hacking Windows#Covering Tracks#Rootkits#Countermeasures|Countermeasures]]
 
 = Hacking Windows =
 
@@ -360,5 +317,27 @@ If a system as been compromised with administrator privileges, the OS has to be 
 * *Network*. Use `netstat -aon` to see all the network connections.
 
 == Windows Security Features ==
+
+Windows has some built-in security features like the *windows firewall*, *automatic updates* and the *security center*, for consumer. This security features are really useful for hardening the security of the OS.
+
+The *Windows Firewall* is enabled by default with very restricted policies regarding open ports blocking all inbound connections. *Automated Updates* can be viewed as a security feature for consumer, but in enterprises environment automatic updates may be produce malfunctioning or introduce vulnerabilities; in general for end users automatic user are a good idea. Another thing to keep in mind when considering automatic updates is that the updated machine has to be rebooted to finish the update, in large environments a plan has to be made to perform them and an infrastructure has to be put in place to perform tests of compatibility with third party software and updates. The *security center* allows end-user to perform some configuration tasks regarding firewall, antivirus and permissions.
+
+For professionals Windows has some more specific tools:
+
+* Group Policy tool, that allow security policies settings in large windows domains
+* Microsoft Security Essentials that is a free antivirus
+* EMET, is an advanced toolkit that allow sophisticated protection against complex attacks. It allows user to configure Data Execution Prevention and Address Space Layout Randomization (counters Buffer Overflow attacks).
+
+=== BitLocker and EFS ===
+
+Another important features of Windows is the protection of the File System. The Encrypting File System, uses a symmetric key that is encrypted by public key of the user and stored as an attribute of the file; the symmetric key is then decrypted by a private key first, before decrypting the file. It prevents unauthorized access to remote files, and protect the files in case of a boot from a live OS. Microsoft provides a tool to recover encrypted files through the recovery agent, it is an account that can decrypt any file; the recovery agent is implemented by using a secondary attribute in each file, where the symmetric key is encrypted with the public account of the Recovery Agent account. Clearly this tool can lead to privacy and security issues: it is a single point of failure. 
+
+Commonly the Recovery Agent is stored in the *Domain Controller*, that its a common target of attacks.
+
+*BitLocker* Encrypts the whole hard drive, the OS manage the encryption and decryption of files. It is implemented by a Kernel Module that manage the access to files, and the key is stored inside the module itself. 
+
+==== Cold Boot attack ====
+
+Published several years ago, its an hardware attack that allows to tamper BitLocker encryption keys from the RAM. This attack is performed by cooling down RAM and then retrieving the keys. A countermeasures for Cold Boot attack is to use a removable module to store the keys.
 
 
