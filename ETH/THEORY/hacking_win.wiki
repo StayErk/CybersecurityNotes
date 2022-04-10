@@ -340,4 +340,11 @@ Commonly the Recovery Agent is stored in the *Domain Controller*, that its a com
 
 Published several years ago, its an hardware attack that allows to tamper BitLocker encryption keys from the RAM. This attack is performed by cooling down RAM and then retrieving the keys. A countermeasures for Cold Boot attack is to use a removable module to store the keys.
 
+=== Other Security Features ===
+
+Windows also has some additional protection measures for files critical for the system; it prevent accidental misconfiguration or malicious editing of those file. A trusted installer account is needed to access in write those kind of file. Built-in into the kernel there is the *Mandatory Integrity Control* which implements Mandatory Access Control, where security level can be defined to assure a right access to files.
+
+Usually the administrator account can administer all the resources of the system, the idea of service resource isolation is that different administrator can be specialised to different part of the system, in such a way if a administrator account is compromised just some services are compromised. It is an implementation of the *least privilege execution* idea; also Windows map all system processes and services in session 0 and all user' processes in session 1, this division enforce the windows service hardening.
+
+Compiler based enhancements can be used to add buffer overflow security checks: GS (Guard Stack or canary), ASLR and SafeSEH; all of this security measures can be enabled by options during compile time. The canary is generated randomly and is a string that contains character that normally can't be written in the stack preventing an attacker to tamper the stack with the same string exploiting the canary. Other approaches involve the use of external modules like TPM to manage the creation and the check of the canary string. This schemes assume that we have the source code to ri-compile all the services with security flags. For decades the Microsoft Service installation system was the same for every system, so each service had the same address space allocated, for this reason ASLR is needed to prevent an exploit to work on every host. *Center for Internet Security* offers free advice for securing windows systems ([[httpss://www.cisecurity.org|more on this]]).
 

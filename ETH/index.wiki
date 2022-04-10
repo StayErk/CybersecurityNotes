@@ -9,7 +9,8 @@ This page (and the followings) contains my personal notes taken during the [[htt
 - [X] [[./THEORY/footprinting.wiki|Footprinting]]
 - [X] [[./THEORY/scanning.wiki|Scanning]]
 - [ ] [[./THEORY/enumeration.wiki|Enumeration]]
-- [o] [[./THEORY/hacking_win.wiki|Hacking Windows]]
+- [X] [[./THEORY/hacking_win.wiki|Hacking Windows]]
+- [ ] [[./THEORY/cyber_crime_and_apt.wiki|Cyber Crime and Advance Persistent Threath]] 
 
 == Laboratory ==
 

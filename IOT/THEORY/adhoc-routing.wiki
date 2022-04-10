@@ -39,7 +39,10 @@ The information are updated and propagated iff the RREP has a greater sequence n
 
 Each node maintains the list of active neighbors, because they have to know if the route became invalid (*route maintenance*). The fields of the routing table are:
 
-*routing table fields*
+
+
+| Destination | Next Hop | Hop count | destination sequence number | list of active neighbors for this route | expiration time |
+
 
 ==== What happens in case of errors ==== 
 

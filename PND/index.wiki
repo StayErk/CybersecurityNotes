@@ -2,6 +2,6 @@
 
 == Theory ==
 - [ ] [[./THEORY/ipv6.wiki|IPv6]]
-- [ ] [[./THEORY/firewall.wiki|Firewalls]]
+- [o] [[./THEORY/firewall.wiki|Firewalls]]
 	- [X] [[./LAB/iptables.wiki|Iptables]]
 	- [o] [[./THEORY/nat.wiki|Nat]]

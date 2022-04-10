@@ -1,0 +1,97 @@
+= Geographically enabled Routing =
+
+Geographic routing approach was proposed to overcome the limitations of proactive and reactive approach. In proactive approach we have to continuously transmit control information; in the reactive approach there is a delay given by the route discovery. In some applications we may need to know where a device is, (tag measurements with time and space information).
+
+There are some way to estimate time and space of a device; for external outdoor GPS can be used to synchronize clocks and retrieve space informations. This kind of informations can be used to perform a route discovery.
+
+If I know where the destination is physically located and my position, I could send the data through the direction of the destination (*directional* routing) this approach works even if the position known is not precise (localization error).
+
+Using geographical routing, there is no need to update routing tables, the only informations needed are the position of the source and of the destination. Another advantages is given by the fact that this kind of routing inherently has some kind of robustness.
+
+It also has some drawbacks, first of all it depends on extra hardware limitation, scalability is an issue: is difficult to estimate the position of the nodes. 
+
+In many application the position of important elements (the sink) is known and fixed where other nodes can move; so the problem given by the position estimation is reduced.
+
+== Location-Aided Routing ==
+
+Even if the informations are sent periodically, is not possible to know exactly where the destination is: its location depends on the velocity of its movement (expected zone), so we can sent the informations towards an area that it's larger as old the last information is. There can be situations in which there are not valid routes inside the cone, so a larger cone has to be used. *LAR* was implemented to overcome the limitations of the reactive protocols (Route discovery flood the network).
+
+Only nodes inside the request zone forward the route request, the request zone is specified in the RREQ packet.
+
+If the route request using the smaller request zone fails, more traditional reactive methods can be used instead of enlarging the request area. If we assume that every node can be in movement, location informations can be difficult to retrieve. So initially informations about location are retrieved, and then are used for optimize later transmissions; updates on the location are sent at each reply allowing to reduce the overhead associated to route discovery process. However proactive distributing information can be costly.
+
+LAR has also a second version, that uses a greedy forwarding rule. In the greedy forwarding we try to minimize the flood of the network: relay only if I am in the positive forwarding region, so only if I'm going in the direction of the destination. A relay is selected for forwarding only if is in the positive forwarding region and is the closest to the destination. 
+
+== DREAM ==
+
+Distance routing effect algorithm uses a proactive way of spreading location informations, and is based on a smart way of broadcast location informations. To choose how often a location update has to be sent, the distance effect could be used: closer nodes look like they are moving faster, so we need to receive more location updates from closer nodes. Each location update packet is associated with an age that determines how far that packet has traveled. Reducing the overhead in the network.
+
+
+== Geo routing for IoT systems ==
+
+In IoT settings there are scalability issues, and devices with energy saving protocols running which less resources; with the advantages of fixed sinks devices. *ODV* and *DSR* are not really power efficient because of the route discovery part of the protocol.
+
+=== GeRaF ===
+
+We can assume that there is a sink, and the topology of the network can change because of the power duty cycle; geographical routing can be applied, with some improvements to increments energy efficiency. Both medium access control and routing have to be implemented, given the high dynamic topology its possible to use a *cross-layer* approach in which MAC and routing are jointly considered.
+
+Suppose we're using CSMA/CA as MAC; the RTS is sent to all neighbors, inside the RTS information to rank each probable relay can be inserted; each possible relay include its rank inside the CTS. The source will choose the best, and sent the data to him.  This approach is very general, and can be used to derive very different protocols and implementations. Another interesting idea is that if we use this approach, the routing can be achieved without knowing nothing about the topology, but only using the local informations to tell which relay use.
+
+In GeRaF the concept above is applied, the function used for ranking is based on the concept of _advance as much as possible_. It's mapping of the greedy forwarding into the cross-layer approach.
+
+* In RTS are present extra informations: location of the destination, and source destination;
+* Collision can happen between two CTS sent at the same time, in CTS informations about the relay position must be present;
+	- An improvement could be to split in subregions the neighbors region, first send the RTS to the most advance subregions. In this case the RTS must contains also the information about the subregion queried. However multiple CTS could happen, leading to a collision.
+	- In GiRaF the idea used to solve collision is the following: if a node receive a collision it sends a collision packet (additional control packet), if a node receive a collision packet answer with a CTS with probability $p$ decreasing the number of devices answering. If no one send a CTS, another extraction has to be done.
+
+For handling the collisions, nodes can desynchronize their CTS response by computing a Jitter based on their quality to advantage better nodes over worst one. Another optimization can be done by do not send the CTS if the Jitter is greater than a threshold.
+
+The approach used by GeRaF do not assure the reliability of the communication, the *Dead End* problem affect greedy forwarding; it is possible that the _best_ relay chosen for the forwarding by the source do not has any route to the destination, and in the greedy forwarding there is no rule that check if a node can further advance.
+
+If a dead end is encountered backtracking has to be performed in order to find another valid route. Of course the *dead end* problem is more present in low density settings; different methods can be used for reducing the problem like: decreasing duty cycle of a node if it fails to find a relay, or decreasing its probability of proposing as a relay in such a way that other nodes along paths to death-ends are less and less selected as next hop relays. However this kind of solutions do not solve the problem entirely.
+
+Backtracking rule leads to delivery performance of 93-97%, but the problem is not entirely solved. 
+
+=== ALBA ===
+
+To summary the concept of geographic routing: the idea behind it is that id forward the packet to a node that offers geographic advancement toward the destination and it is virtually _stateless_ in the sense that it requires only the knowledge of the source and the destination locations; for this reason it requires a way to perform position estimation and mechanisms to route packets outside of *dead ends*. 
+
+Some theoretical approaches, propose to *planarize* the network graph in such a way that there weren't cross links, and walk the face perimeter when the advance area is empty (so when there is a *dead end*). Of course this approach guarantees delivery but the overhead generated by the planarization is huge and prone to localization errors.
+
+Adaptive Load Balancing Algorithm, solve practically the *dead end problem* using the cross layering approach specifying an objective function to choose the best next-hop relay. It has a converge-casting approach and it is a cross-layer protocol applied to implement MAC and routing in IoT systems where duty cycle is known. A relay is chosen based on its effectiveness, so different metrics are used to perform this choice: *QPI* and *GPI*; also it implements a solution to solve the dead end problem: Rainbow Mechanism.
+
+Nodes can forward packets in burst of size $M_B$ back-to-back, and the size of the burst can be adapted, a next hop relay is elected based on it's ability to receive and correctly forward packets (it's queue level, past transmission history and number of packets that the sender needs to send) and it's geographic proximity to the destination.
+
+* GPI: is the Geographic Priority Index, and depends on how close a relay is to the final destination.
+* QPI: is the Quality Priority Index, and indicates how effective is a relay and it's computes as follows: $QPI = \lceil \frac{(Q + N_B)}{M}\rceil - 1$ where:
+	- $Q$ is the number of packets in the queue;
+	- $N_B$ is the number of packets that the sender requests to send;
+	- $M$ is the average length of burst sent correctly
+
+{{file:./imgs/ALBA.png}}
+
+Then a rule is used to choose the best relay, giving priority to one or to the other index; in the implementation of ALBA gives more wight to the *QPI*. The advantage of using a cross-layer approach is the fact that very dynamic local informations, that before where to costly to exchange with other nodes on the network, now can be used to further optimize the communication; every useful measurement can be used to compute a priority index, like energy levels, position with respect to the destination and so on. It is a very flexible paradigm.
+
+Collisions can be avoid using a scheme similar to the one used by GiRaF, where a node upon receiving a *COLL,,ST,,* message will send a further CTS only with a fixed probability $p$.
+
+==== Rainbow 🌈 Mechanism ====
+
+Is the mechanism used in ALBA to solve the dead end problem. It is a node coloring algorithm used to route out of *dead ends*. Removing a dead end from a set of possible relay is not a good approach to solve completely the problem. The rainbow mechanism works by recursively let nodes that are dead ends to stop volunteering as relays, because a relay that has a greedy forwarding path to the sink can eventually be found.
+
+1. All the node start yellow, each node that has a greedy forwarding path to the sink remains yellow
+2. Nodes that cant forward packet further will became red, red nodes will only relay to other red node or yellow nodes.
+3. If a node can't reach another red node or a yellow node it will became blue, blue nodes will forward only to other blue or red nodes.
+4. If a node can't reach another blue node or a red node will became violet, violet nodes will forwards only to other violet or blue nodes.
+
+After some time each node will stabilize to a color, and after this moment each node can force the progression of packets out of dead ends because of the rules above. So this scheme is a method used to force progression of traffic solving completely the problem of dead ends.
+
+Generalizing the rules above we can say that:
+
+* The number of colours needed $h$ can be adapted: greater the number of labels, more nodes can be connected to the converge-casting tree
+* given $h$ labels: $C_1, ..C_h$ where $C_1$ is the label assumed by the nodes which have a greedy path to the sink.
+* A node can switch to a greater label each time it perceive to be a dead-end with it's current label.
+	- nodes with odd labels look for relays in $F$
+	- nodes with even labels look for relays in $F_c$
+* A node with a given label $C_k$ will only relay packet to node with label $C_k$ or $C_{k-1}$ (forcing progression), except, of course, for $C_1$ labelled nodes. Each node discover autonomously how to behave. 
+
+The correctness of the colouring algorithm can be proven by *double induction*.

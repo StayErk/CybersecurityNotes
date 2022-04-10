@@ -1,0 +1,25 @@
+= Cybercrime and Advanced Persistent Threats =
+
+APT are the most difficult kind of attacks, performed by professional attackers and are related to financial cybercrimes. The main features of APT is time: their objective is to make profit over a long period of time.  APTs use different tools and techniques with respect to normal attacker.
+
+== Advanced Persistent Threats ==
+
+* Advanced: because they use advanced methods such as zero-day exploits and self-crafted ones. In the case of the *wiper* used during the Ukrainian war; they used a technique never used before: they deleted all the metadata (very weak and old idea) and then they increased the fragmentation of the disks (new idea) randomizing the blocks.
+* Persistent: the attacker has a long term goal, and he can returns to the target system when ever he wants without being detected.
+* Threat: organized, funded and motivated. They have a quantity of founds equivalent to the founding of the target.
+
+There are two major groups of APT, one performs basic criminal activities: *crimes* (theft of identity, theft of financial information, fraud), the second group performs *sponsored activities*, some sponsor (governs, industries) sponsor a group of hacker to perform attacks *espionage*; there are proof of huge chines hacker groups sponsored by chines industries to attack competitors.
+
+Non-APT attack are against _opportunities_, just find a vulnerable system and do something (_smash and grab_). APT normally steal large amount of data from a corporation over a long period of time, and they have *long-period goals*. A good example of APT is the *F-35*: there are proofs of an APT that stolen informations about the construction and developing of the F-35 against the US government. APT goal is to gain and maintain access to information.
+
+In order to maintain access for a long time, the attacker cannot destroy any component of the system or interrupt normal operation trying to stay hidden while stealing data (keep data flowing at low rate for week to not be detected by IDS). APT commonly start with spear phishing: they trick a user into installing malware, trying to take control of his account to impersonate him to be stealthy. APT usually profiles the target user, addressing him with very well crafted emails that containing malware.
+
+== Hiding Techniques ==
+
+There are several techniques used for hidings. A first technique is the *cut-outs*: it consist in using compromised nodes unrelated to both the target and the APT to route all the attacks. Another way to stay hidden is to use standard *Dropper delivery services*, to perform the installation of malware or to use a compromised machine.
+
+There are some popular techniques that have been discovered and studied by the literature, them are really close to other common techniques:There are some popular techniques that have been discovered and studied by the literature, them are really close to other common techniques:
+
+* SQL injection to add malware to websites and the redirect target users to that website
+* Infected USB stick "drops", to try to install malware in _air gapped_ systems. StuxNet malware is an example of this kind of attack zero-days documentary.
+* 
