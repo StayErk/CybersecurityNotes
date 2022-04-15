@@ -157,3 +157,19 @@ Some website allow users to upload content that can later be seen by other users
 For those reasons, the stored xss is more dangerous than the reflected xss.
 
 [[https://samy.pl/myspace/tech.html|Code and explanation of the MySpace Worm by Samy Kamkar's]].
+
+==== Request Forgery ====
+
+Request Forgery attack are a particular type of attack that force a victim to execute an action that he do not want to execute, differently from XSS, it does not imply stealing of session data: he attacker do not do anything besides tricking the user. There can be Os Site or Cross Site.
+
+We know that browser requests automatically includes any credentials associated with the site, so the attacker an forge a request that a user will perform unintentional. The attacker does not see anything about the transaction. 
+
+{{file:./imgs/csrf.png}}
+
+To countermeasure *CSRF* use secret CSRF tokens, so every state-changing operation must require the token, the token has to be large random and are to be added as hidden field forms. Of course each token has to be unique for each request.
+
+If a website has `xss` vulnerabilities CSRF are unavoidable, another way to avoid countermeasures is the `BREACH ssl attack`: it consists of using multiple requests to guess the token and possibly other info even with encrypted sessions. 
+
+==== SQL Injection ====
+
+SQL is a standard language for accessing and manipulating databases. A lot of web application uses databases to store data, SQLi is possoble when the user input is not validated, and the application-generated qeries contains user-fed input

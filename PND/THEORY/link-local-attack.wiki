@@ -1,0 +1,43 @@
+= Link Local Attacks =
+
+== Network eavesdropping ==
+
+It is a common practice used for capture traffic transmitted by other nodes in the network. The informations captured can contain sensistive informations: *password*, *session data* and *cookie*. Usually eavesdropping is performed by sniffers, the most famous tools used are `ettercap`, `bettercap` and `macof`, they can work in passive and active mode, and can spoof the mac address of other devices in the network. 
+
+To perform a eavesdropping its required to be in the broadcast domain or along the path, and set the NIC in promiscous mode:
+* Non-switched LAN (easy)
+* Switched LAN: switches segment the network; to break switch segmentation MAC flooding can be used, or an *ARP spoofing* attack has to be done to redirect the traffic from one port to another. (Possible MITM attack)
+* Wireless LAN: possible if no or weak encryption is used.
+
+To countermeasure *eavesdropping* it's needed to use encryption.
+
+=== Break Switch Segmentation ===
+
+The attacker want to force the switch to send to him packets directed to another segment of the network. Switches store the association between physical port and MAC address in the CAM Table, which is an efficient HW implementation of a key-value pair table. *CAM tables* have a fixed size, as frames moves in the switches the CAM is updated and filled by MACs; if a MAC is unknown the packet is replicated in all the possible ports (*flooding*).
+
+==== CAM Overflow ====
+
+Until May 1999 was only a theoretical attack, `macof` implements it. This kind of attack exploit the fact that CAM has a fixed size. Usually switches uses hash to place MAC in CAM table: *link hashed list*, if the value is the same there are $n$ buckets to place CAM entries. When the CAM is full three things can happen:
+
+1. Switch start flooding
+2. Switch freezes
+3. Switch crash
+
+Today this kind of attack is not possible anymore: *port security* is implemented to allow only a certain amount of MAC addresses or to specify MAC addresses for each port; upon detection of of an invalid MAC the switch will block that specific port. This methodology is extremely effective against *CAM overflow*. 
+
+==== ARP Spoofing ====
+
+In this case the attacker wants to fool one (or several) host to send packets to us instead of the real destination. An ARP request message should be placed in a frame and broadcasted to all computers in the network, only the real destination is supposed to answer with its MAC address. The informations about IP-MAC pairings are stored inside the *ARP Table*.
+
+It is accessed before sending any Ethernet Frame, and it starts empty and is filled by ARP reply. Unused MAC are removed after a timeout, in addition to the ARP request/reply mechanism there is the *Gratuitous ARP response*, it is used by an host to announce its IP address to the local network to avoid replicated IP addresses; other nodes in the network can cache the informations sent inside the ARP Table. The problem is that ARP protocol has no kind of protection, there is no check of association between IP address and MAC address; so gratuitous ARP response can be used maliciously making possible to any host to pretend to be anyone. The problem of this kind of attack is that is very noise: the network will be filled by malicious gratuitous ARP response, so it is easily detectable.
+
+ARP spoofing can be used to perform Man in the Middle attack. 
+
+
+==== IPv6 Neighbors Discovery ====
+
+In IPv6 the address resolution is implemented using the Neighbors Discovery protocol, uses multicast packets instead of broadcast one. IPv6 also has a Duplicate Address Detection, that uses the Neighbors Discovery Protocol to discover if there is another node with the same ip address in the network. The idea is that the attacker will reply maliciously to any request to cause a DoS.
+
+==== ICMPv6 Redirect ====
+
+
