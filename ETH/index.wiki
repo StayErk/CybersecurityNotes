@@ -10,7 +10,8 @@ This page (and the followings) contains my personal notes taken during the [[htt
 - [X] [[./THEORY/scanning.wiki|Scanning]]
 - [ ] [[./THEORY/enumeration.wiki|Enumeration]]
 - [X] [[./THEORY/hacking_win.wiki|Hacking Windows]]
-- [ ] [[./THEORY/cyber_crime_and_apt.wiki|Cyber Crime and Advance Persistent Threath]] 
+- [ ] [[./THEORY/cyber_crime_and_apt.wiki|Cyber Crime and Advance Persistent Threath]]
+- [o] [[./THEORY/remote_voip.wiki|Remote Connectivity and VoIP Hacking]]
 
 == Laboratory ==
 

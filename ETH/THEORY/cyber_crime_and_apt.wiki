@@ -4,6 +4,7 @@ APT are the most difficult kind of attacks, performed by professional attackers 
 
 == Advanced Persistent Threats ==
 
+
 * Advanced: because they use advanced methods such as zero-day exploits and self-crafted ones. In the case of the *wiper* used during the Ukrainian war; they used a technique never used before: they deleted all the metadata (very weak and old idea) and then they increased the fragmentation of the disks (new idea) randomizing the blocks.
 * Persistent: the attacker has a long term goal, and he can returns to the target system when ever he wants without being detected.
 * Threat: organized, funded and motivated. They have a quantity of founds equivalent to the founding of the target.
@@ -22,4 +23,121 @@ There are some popular techniques that have been discovered and studied by the l
 
 * SQL injection to add malware to websites and the redirect target users to that website
 * Infected USB stick "drops", to try to install malware in _air gapped_ systems. StuxNet malware is an example of this kind of attack zero-days documentary.
-* 
+* Infected Hardware or Software;
+* Social Engineering and user impersonation; or
+* Compromised insiders
+
+== APT Phases ==
+
+An APT attack is composed of different phases, girst of all the attacker perform a *Targeting Phase*, in which he collect infos about the target and tests its security levels: vulnerability scanning and phishing are common techniques.The Attacker of course will gain access to one machine of the target system, where the attacker perform Reconnaissance of the internal network (*enumeration of intranet*) like Domain Controller (_active directory_), File Shares and Mail Servers. After the recoinnesance phases the attacker will perform a lateral movement to move more through network to other hosts using real user's credentials. After lateral movement the attacker has enough information to find out where are the hosts of interest, so he can collect data and exfiltrate them via proxy or *cutouts* that contains temporary the exflitrated data. The attacker will also use tools to maintain access over time (multiple back doors) and to see evolutions of the target system. Major APT uses Triggers, that are alarms that inform the attacker of a major maintenance going on. 
+
+== Detect APTs ==
+
+APTs leave traces in systems, investigator can look for evidences in *Email logs* (Well crafted phishing emails), because many APTs start with a phishing attack; also traces of lateral movement may have been leaved by misusing of access credentials or identities. Traces of exfiltration can be found inside *Firewall and IDS logs*, *Data Loss prevention logs*, *Application history logs* and *Web server logs*. Artifacts of APT can be also discovered in Live File system and in RAM, and in Hard Disk images.
+
+== Historical APT Campaigns ==
+
+Some examples of APT Campaigns are:
+
+* Aurora
+* Nitro
+* Shady RAT
+* Lurid
+* Night Dragon
+* StuxNet
+* DuQu
+
+=== Aurora ===
+
+Operation Aurora started in 2009 and lasted 2 years, was mainly targeting US ICT industries including Google. The goal of this campaign was to get industrial secrets. The attackers gain access to those companies through a phishing email with a link to a Taiwanese website hosting malicious JavaScript that was exploiting Internet Explorer vulnerability and it was undetected by antivirus. A *Trojan Downloader* was placed on victim computer and installed a Backdoor *Remote Administration Tool* that allowed SSL remote access to the attacker.
+
+The malware used was *Hydraq*, after a victim workstation was compromised they started to do Lateral Movement and then compromise the *Active Directory* credentials to gain access to computers and network shares with valuable intellectual properties. China government was suspected to be the sponsor of the attack but there are no proofs. 
+
+== Anonymous ==
+
+Anonymous is another famous APT, born in 2011, their main interest is to perform DoS attacks and exfiltrate secret (confidential) documentation and publish it on public websites. They use very sophisticated techniques to perform exfiltration and intrusion in target organizations. Anonymous is composed by same people that take part in other hacker groups and secret services so it is part of a grey area.
+
+They use a variety of hacking techniques like: *SQL Injection*, *XSS* and Web Server exploit. They target government agencies at all levels, corporations like Sony, Mastercard, Visa and many more. Their primary goal is to expose critical information to the public to demonstrate that people can strike back at powerful organizations and/or to expose corruption or to cover other APT on going.
+
+== RBN == 
+
+Russian Business Network, is a company specialized in international cybercrime (in Russia cybercrime is legal so _who cares_); they are specilized in identity or financial theft, sophisticated malware. They do not perform attacks but facilitate them, and also they host pornigraphic subscription website. 
+
+== APT Tools and Techniques ==
+
+See in details what kind of tools APT uses. Gh0st attack and Malicious emails are most of the common tools used.
+
+The GhostRAT was used in ghostnet attacks, it is a Remote ADministration Tool with advanced capabilities: it can:
+
+* Clear Rootkits installed;
+* Explore Files;
+* Control the screen;
+* List the processes running;
+* Keystroke Logger;
+* Remote Shell/Terminal;
+* Webcam Eavesdropping;
+* Voice Monitoring;
+
+=== GhostNET Phishing ===
+
+The GhostNET Phishing attack started with an email sent by a German email server blacklisted for spamming, the source of the email was found on the inbox of the victim. From the point of view of the forensics analysis there are different tools used for analyze a phishing email:
+* Whois
+* Robtex search for IP and domain; it collects all the information freely available on that specific IP address or domain name. It is a good starting point.
+* PhishTank is a service specialized in phishing emails: it is a Database of phishing email and senders. 
+  
+The investigation process will also look for indicators of intrusion. There are typical techniques used by malware to survive a reboot; one of the configuration of the system to check is represented by the `RUN` keys in the registry, another thing to check used by malware is the creation of a *service*. Sometimes instead of creating a new service a malware can hook inside a existing service or to use a scheduled task. 
+Other typical actions performed by malware are to disguise communications as valid traffic: *network morphism* (like embed malicious communications inside HTTP packets), malwares can also overwrite the master boot record or change system's BIOS. This kind of analysis can't be performed automatically.
+
+The process of the analysis has to follow the *order of volatility*, and it concern the amount of time of information survival. The most important thing to analyze is the RAM: it's the most volatile memory so it has to be dumped first, after RAM, *Page* or *swap file* have to be dumped. The running process information give a lot of hints about the attack, followed by the network data. System registry, system and application log files have to be checked. A forensics image of the disk can be used to perform more accurate investigations. There are tools used to perform memory acquisition: `AccessData FTK imager` (dump of RAM in file), `Sysinternals Autoruns`, `Sysinternals Process Explorer`, `Sysinternals Process Monitor`, `WinMerge`, `Currports` and `Sysinternals Vmmap`, never use tools already installed on the victim machine but only use them from a CD-ROM (to ensure legitimate versions of the tools). 
+
+==== Memory Dump Analysis ====
+
+It is crucial for APT analysis because many APT methods use process injection or obfuscation, RAM data is always in clear, so forensics analysis can be performed more efficiently. When performing a Memory Dump assure always to copy the output data to an external storage device. *Pagefiles* or *Swapfiles* have to be analyzed because they contains part of memory data that was paged out of memory for performance reasons. Another file to check is the `hyberfil.sys` the contain a dump of the memory done before the hybernation of the system, it may contains more informations about the attack. In general it is better to collect the forensics disk image of the all system, but it is not always possible. There are tools that can be used to analyze memory dumps: `Volatility Framework`, `Mandiant Memoryze` are an example. All of this tools allow to search for processes running, open network connections, Dynamic Link Library and much more. `strings` can be used on DLL to check it's content in search of comments or names.
+
+An important file to be checked is the `hosts` one, that contains pairs of hostnames and ip address to be accessed on the local network to see if hostnames have been modified or added.
+
+*Process Monitor* allow to see all kernel interaction of a given process, it is useful to run during malware infection to see what the malware modify.`VMMap` is a tool used to perform virtual and physical memory analysis of a process. `Prefetch` directory is another good source of information, and can be accessed only as administrator; it cotains the last 128 programs executed. The informations acquired can be useful to better understand was going on in the system.  
+
+==== Interesting Files ====
+
+After the colelction of disk data, interesting files are: 
+* `ntuser.dat` file that contains user's profile data
+* `index.dat` that contains an indec of requested URLs
+* `.rdp` files that contains information around any remote desktop sessions
+* `.bmc` files that contains informations of cached images of RDC client. Bitmap of the session screen, used to speedup the login on Remote Desktops.
+* Antivirus Log files. The antivirus may be stopped or modified by the attacker to allow the malware to operate undetected. Sometimes malware use repacking to be undetectable for antiviruses.
+  
+  
+== Linux APT Attack ==
+
+Linux System was considered a simulated attack on the following scenario: Linux machine running Apache Tomcat with weak credentials copied form an example page, it was exploited with Metasploit and the `/etc/passwd` file was used to reveal usernames. 
+
+Escalation to root  can be performed, for example, by finding a username with an obvious password and the crack the superuser password. The attacker then upload a PHP backdoor, and create a SUID root shell for getting root provileges back in case a password chenge. `Metaexploit Framework` compromised host is used as a pivot tools, and shells like `Meterpreter` is runned in memory without disk writes.
+
+To diagnose the host first of all the investigators have to block the access by firewall and then check root account history and logs of `sudo su` commands. 
+
+Tomcat has to be configured to log access request, to check network connection use `netstat  -anlp` or `lsof -i -P`; they show all the open connections, on which port and which protocol is used; with this tool we can individue possible backdoors. 
+
+=== Where to Hide Files ===
+
+The attacker can hide files, a very trivial way is to look for directory named `.. `; with `ls -ab` (all special character) it is possible to see also spaces to search for maliciously created directories. It is important to look in temporary folders to look for hidden files.  It is important to check RAM drives like: `/dev/shm`, the attacker can mount a piece of RAM inside a folder. Every time the attacker write something in that folder the content goes directly in RAM. To see RAM drives use: `df -a`, when the machine is rebooted the content is lost, of course the RAM disk is mapped in the memory space on the user that created that directory; if the attacker has root privileges he can access `/proc` to modify the kernel memory space.  If a suspicious RAM disk is found, the investigator enters it and use the `strings` command to get readable strings from a binary file: `strings malware.out > malfile`. The content of `malfile` can be used to acquire informations about the executable itself.
+
+== Poison Ivy ==
+
+It is a remote administration tool, similar to Ghost but more stealthier, and it was very utilized by APT attacks. This malware was open source and was maintained until 2008, however the source code  is available, so most of the APT maintain their own versions. Was used in Aurora, RSA attack and Nitro. 
+
+== TDSS ==
+
+It is an advance malware that has managed to compromise several millions of hosts around the world creating a bot-net. There where also variants of this malware and derivates; it is used very often in APT campaigns. Sometimes TDSS botnets are rented to perform DDoS attacks, click fraud and Trojan Installation.
+
+== Common APT indicators ==
+
+Mostly they start with spare-phishing attack targeted and very well made; this kind of attack contains very well made malware or link that redirects to an hidden address (*Dropsite*) that detect browser vulnerabilities and install trojan. The downloader sends a base65-encoded instruction to a different dropsite, which install a trojan. The backdoor use filenames slightly different from real Windows system's files and use SSL encrypted connection. The attacker will only interact via cutouts with the trojan, the attacker tries to lists computername, user accounts and to get Active Directory account info. 
+
+After that service privilege escalation is done with network reconnaissance and lateral movements. Lateral movements are performed via RDP, `SC.exe` or NET commands installing additional Trojans and egress point. All stolen files are packaged in ZIP/RAR and renamed as GIFs.
+
+== Detecting APTs ==
+
+First of all the administrator has to find a fast way to audit all changes to the critical parts of the file system, and to implement *SMS* (not controlled by the attacker) alerts on administrative logins and firewalls that monitor inbound *RDP/VNC/CMD.EXE*. Security Information/Events Management are used to keep logs and correlate their content to find anomalies. 
+
+

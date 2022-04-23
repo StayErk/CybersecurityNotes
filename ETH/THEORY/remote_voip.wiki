@@ -1,0 +1,13 @@
+= Remote Connectivity and VoIP Hacking =
+
+One of the basic connectivity present on larger organization is *Dial-Up*, it is a bit old, but it is used to connect legacy servers and SCADA systems (Colonial Pipeline), related to Dial-Up hacking is the PBX Hacking (public switched telephone network). On another import aspect is the Voice Mail hacking. Newever targets are *Virtual Private Network* hacking and *VoIP* attacks.
+
+== Dial-up Hacking ==
+
+Sometimes the attacker prefer to target dial-up connections because there are less protected. This kind of connection is used to connect old servers, network devices and Industrial Control System. Sometimes also the maintenance of critical servers is done by third party companies that have direct dial-up connections to it. The direct line is a telephone line. Dial-Up hacking follows the same steps of traditional hacking (footprinting, scan, enumerate, exploit), there are automated tools like: `wardialer` or `demo-dialer`. The phone number footprinting is used to identify blocks of phone numbers and try to understand if a human or a machine is answering. Some tools will also try to logon with standard credentials. 
+
+To perform Wardialing the attacker has to have specific Hardware (to handle high number of high-quality modems) and software. There are some legal issues when performing *War Dialing* (it's a [[https://www.youtube.com/watch?v=zZdXkl-1olk|crime]]), and there are peripheral costs. `WarVOX` (record up to few minutes of conversation: *wiretaping*). 
+
+=== Countermeasures ===
+
+Require a password to make account inquiries, sanitize sensitive information and educate employess.
