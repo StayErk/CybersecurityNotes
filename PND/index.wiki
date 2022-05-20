@@ -6,3 +6,11 @@
 	- [X] [[./LAB/iptables.wiki|Iptables]]
 	- [o] [[./THEORY/nat.wiki|Nat]]
 - [ ] [[./THEORY/link-local-attack.wiki|Link-Local Attack]]
+- [ ] [[./THEORY/net-hardening.wiki|Network hardening]]
+- [ ] [[./THEORY/vpn_ipsec.wiki|VPN and IPSec]]
+- [ ] [[./THEORY/proxies.wiki|Proxies]]
+- [ ] [[./THEORY/siem.wiki|SIEM]]
+
+== Lab ==
+
+[[./LAB/opnsensefirewall.wiki|OPNSense Firewall Rules]]

@@ -1,0 +1,172 @@
+= Wireless Hacking =
+
+The wireless infrastructure can be a very dangerous component of an IT system. The objective is to express how attacks on wireless network can be performed and how to contermeasures them. 
+
+There are a lot of tools that can be used to perform wireless attacks, `aircrack-ng`. 
+
+== Typical Scenario ==
+
+Large place with offers wifi network, the authentication schemes use WEP (Wired Equivalent Privacy, that it is very easy to break), an attacker can use a laptop with a wifi card in promiscous mode and a directional antenna.
+
+Then the attacker will use `aircrack-ng` tools to first sniff 802.11 frames including IVs WEP; and it looks for SSID of interest and its MAC address. If the attacker collects enough IVs it can crack the WEP password. This process can take up to 15 minutes.
+
+== Physical Background ==
+
+The frequencies and channels used in WiFi are the 2.4GHz and 5GHz that are part of the ISM (Industrial, Scientific and Medical unlicensed bands). 
+
+The WiFi protocol is composed by different phases, the first one is the *Session Establishing*; and it depends on the type of the wifi network:
+
+* Infrastructure, each device establish a session with a Access Point
+* Ad Hoc, each device establish a connection with another device
+
+=== Probing (old way) ===
+
+The client send a *probe request* for the SSID, and it repeat this request on every channel, looking for a probe request. After the response, the client sends an authentication request. 
+
+It was a privacy concerning behavior, so it has been changed.
+
+=== Probing ===
+
+The Access Point broadcast its SSID (*beacons*), the devices will collect beacons and checks if the SSID received is a known one.
+
+
+== Authentication ==
+
+* Open Authentication
+* Shared-Key Authentication (too weak)
+* WPA used for authentication
+
+== Basic Security Mechanism ==
+
+* *MAC* filtering
+* Hide SSID from beacons
+* *Responding to broadcast probe requests*
+
+== Authentication Attack == 
+
+*WPA* is the WiFi Protected Access protocol, it takes into account authorization and encryption. It is part of the IEEE 802.11e standard. In particular the basic WPA implements only a part of the 802.11i standard: the *TKPI*. 
+
+*WPA2* implements the full 802.11i standard, so it implements: TPKI, and AES standard. 
+
+The TPKI was a patch made from vendors to resolve the problems of *WEP*; today is not commonly used in favour of WPA2. TKPI was a quick replacement for WEP that uses RC4 (stream cipher) and no major vulnerability is known and it is used for legacy compatibility with old hardware. 
+
+There are two major types of WPA: *personal* and *enterprise*.
+
+* *WPA Personal* (PSK): is the most commonly used, and it uses just one password for all the users; this kind of authentication is executed at level 2 of the TCP/IP stack, so in order to join the network (and get an IP address) the authentication has to be performed. Wireless access can't be individually managed. The main problem is the fact that there is just one password, everybody on the network knows the password, so the security of the network is equal to the security of the least concerned user on the network. 
+* *WPA Enterprise*: it used a *Radius* server; when a user try to connect to WiFi he need to provide personal credentials, in this way the single user will never have access to the actual encryption key, and a possible attacker can't get the network key from clients. It is possible to manage clients individually. The Radius server maintains all the authorized users, perfect to manage large and complex WiFi networks. Part of the WPA-Enterprise is EAP, that describe how the authentication has to be performed, it can be extended and there are different versions of it: *EAP-TTLS*, *PEAP* or *EAP-FAST*. A big impact on the implementation of this standard was given by big telecommunication vendors, because there was need to make working standards to sell more products.
+
+The encryption scheme used is the AES-CCMP it's the most secure and recommended scheme to use.
+
+
+There is a difference between attacking a wireless network and a standard network. In the former case the software is not enough for the attacker. The attacker need also hardware, antennas and wireless cards are needed. 
+
+==== Equipment ====
+
+The first important component is the Chipset, there are a lot of limited chipset, there is the need to have a very low-level control of what is happening on the physical layer. At least to bands have to be available (2.4Ghz and 5GHz). External antennas are also used to connect to weak (far) signals.
+
+Another important aspect to consider is the choice of the Operating System:
+
+* Windows: for any hardware there is a driver, because all the supplier of hardware will write a driver for Windows. But there are not many wireless hacking tool.
+* Linux: wireless NIC drivers (*were*) are hard to get and install, but there are many more wireless hacking tools. Kali includes many drivers pre-installed and can be used from a Virtual Machine with a USB NIC, or via live boot.  
+
+The best solution is to run Linux inside a virtual box. 
+
+Omnidirectional Antenna sends and receive in all the directions, but to receive far signals is better to use a *directional antenna*. 
+
+*GPS* signal can be used with wireless discovery software, to create a map of accessing point. It is used to perform war-driving. 
+
+=== Discovery and Monitoring ===
+
+Discovery tools use 802.11 management frames, like probe req/res and beacons that are not encrypted, and are used by discovery tools to identify WiFi networks. Also the source and destination address of an 802.11 frame is always unencrypted, so there are tools to map associations between clients and APs; also the attacker can know how many clients are connects. 
+
+There are two ways of performing the discovering:
+
+* *Active*. In this case the attacker will send out in broadcast request and record responses; some APs are configured to ignore them. 
+* *Passive*. 
+
+
+=== Attacks on WPA-Personal ===
+
+The Preshared Key is used to derive the specific encryption keys used during a user's session. Those keys are derived after a four-way handshake, an attacker observing this handshake can capture it and try to offline brute force it. 
+
+=== Wardriving ===
+
+It is an activity that was and is carried out by Hackers and company, an it associate WiFi network with GPS position, the name derive from the fact that the attacker drives with a laptop and a good antenna to capture position and wifi signals; today professionals uses drones that can fly on top or closer to buildings. The advantages of using a drone are represented by the fact that it can find weaker WiFi signals that are directly connected to the intranet of the target. 
+
+
+Software used to perform Wardriving is `Vistumbler` which is basically an application that will use the WiFi nic to listen to all *SSID* in the area. 
+
+Wardriving was performed also by Google using Street-Views veichles, this activity is not always legal in all countries.
+
+==== Smartphones ====
+
+There are Android apps that can be used to perform Wardriving, smartphones are good wardriving tools because they combine GPS, WiFi and Cell Tower location to acquire precise position. It is very convinient to do Wardriving with a smartphone in case of etchical hacking. 
+
+
+==== WiGLE ====
+
+WiGLE is a geographic map of wireless network that has more than 16 million records in which wardrivings have uploaded the info collected. So it is community driving. 
+
+Other good tools used to perform wardriving are: `Kismet` and `airodump-ng`, the former can also identify hidden wifi network and can collect some interaction to the AP, that can be used for the attack.
+
+=== Sniffing Wireless Traffic ===
+
+After mapping wifi networks, one of the easiest activity to perform is to sniff the traffic. That's because the WiFi in inherently a broadcast medium, so anyone in range can record the traffic. If the traffic is not encrypted the attacker will have direct access to the channel, sometimes the encryption algorithm can be broked. 
+
+A common kind of attack is the Man In The Middle attack, in which the attacker will pretend to be a particular access point (dedicated hardware or software). This kind of attack is performed to steal credentials of WiFi network and it is very effective in crowded places.
+
+This kind of attacks violates wiretap laws. `Kismet` is capable to save sniffed traffic in a PCAP file. `Wireshark` can then by used to analyze the captured traffic.
+
+
+=== DeAuthentication DoS attack ===
+
+An important aspect of the WiFi is the standardization of the authentication. Part of the standard can be used to perform DoS attack. The authentication part of WiFi can force a device to disconnect if the AP is overloaded, the AP disconnects users by sending a DeAuthentication packet. The attacker can spoof the DeAuthentication packet and flood the network with it. In this way nobody will be capable to connect to the WiFi AP. `airplay-ng` is a tool that can be used to perform DeAuthentication DoS attack.
+
+This attack is easy to perform because *anonymous* de-authenticatio packet can be used.
+
+=== DeAuthentication Discover ===
+
+DeAuthentication packets can also be used to discover newer SSID by analyzing probe requests sent by the devices that he has disconnected. 
+
+== Identfying Wireless Network Defenses ==
+
+To defend the identity of the network, the adimistrator must know where the SSID is exchanged:
+
+* *Beacons*: sent continuosly by the AP unsless disabled, and it contains the SSID of the WiFi network.
+* *Probe Requests*: the probe requests sent by the clients contain the SSID of the desired AP.
+* *Probe Responses*: also the probe response sent by the AP contains the SSID.
+* *Associaction and ReAssociation Requests*: made by clients when connceting or reconnecting to a network. Exploited during DeAuthentication Discover. 
+  
+A way to defend the identity of a WiFi network is to use *MAC Address Access Control*, in this setting the AP maintain a database of allowed MAC addresses, this approach can be easily exploited by an attacker that can just sniff a MAC address, and its administrative costs are very high in large companies.
+
+== Gaining Access ==
+
+First of all the attacker has to specify the SSID target, the connection can be performed manually (in case of hidden WiFi networks or automatically), then in case of MAC ACL the attacker will use a tool to spoof and change the MAC address of its NIC (`SMAC`, or `Device Manager` of Windows can be used to change the MAC address). 
+
+The in case of WEP Algorithm the attacker can perform both a *bruteforce* attack or a better attack based on the collection of *Initialization Vectors*. THe second approach makes the bruteforce attack faster, from Weeks to Minutes. If the attacker collects many Initialization Vectors he can correlat them to get the first byte of the password. There are tools used to break WEP: `AirSnort`, `WLAN-Tools`, `DWEPCrack`,  `WEPAttack`. To countermeasure this kind of attack *use WPA*.
+
+=== Differences between WPA and WEP ===
+
+WPA supports user authentication, and performs key rotation so it has to be cracked continuosly, on the other hand WEP will be cracked once for all.
+
+{{file:./imgs/wep.png}}
+
+The weakness of WEP is represented by the fact that there can be a lot of duplicated IVs, that can lead to easier to guess Keystream and WEP key.
+
+A tipycal way to perform this kind of attack is to use ARP frames, because they lead to a lot of duplicated IVs. `airodump-ng` and `aircrack-ng` can be used togheter to crack a WEP key. $60.000$ IVs are needed to crack a 104-bit key. Statistical measurements on the traffic can be used to predic when the WEP key will be cracked. 
+
+
+==== ARP Replay (Active) ====
+
+The ARP replay is a active way to crack a WEP key, the attacker will broadcast ARP requests forcing the AP to send a new IV every time; this approach allow to collect fast enough frame to retrieve the WEP key. 
+
+=== WPA Personal ===
+
+WPA is pretty secure, but if a weak shared-key is used it can be found with a dictonary attack; also the PSK is hashed 4096 times, it includes the SSID (*costly operation*) and can be maximun 63 characters long. Tools that can be used are `Airodump-ng`, `coWPAtty`, and `Rainbow Table`.
+
+To mitigate a bruteforce attack a *strong PSK must be used* in combination with *unique SSID* because the SSID is used as noise to hash the password. An attacker can also perofrm an offline attack by capturing the four-way handshake. In case of WPA-Personal the PSK can be disclosed by a single user. To capture the four-way handshake the attacker can force a reconnection by sending a DeAuthentication attack.
+
+
+=== WPA Enterprise ===
+
+In case of WPA Enterprise the attacker can't get the network key from clients, thats because user never deal with the actual encryption keys. 

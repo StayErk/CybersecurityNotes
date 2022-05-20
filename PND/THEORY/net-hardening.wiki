@@ -1,0 +1,116 @@
+= Network Hardening =
+
+Network Hardening enhance the protection of our devices, if one device is compromised the entire infrastructure will be compromised. The use of a methodology to protect network device makes possible to reduce the risk of violations and to limit the impact of anomalous events. 
+
+==== Management Plane ====
+
+The scope of network device management, it consinst of an administrator's protocol and tools to configure, monitor or access a network device, if there is an unauthorized access to this area the network is screwed and can lead to loss of services/devices. 
+
+==== Control Plane ====
+
+The scope of supporting the operation of network devices, consisting of the protcols and mechanisms devices use to perform their tasks, an unauthorized data exchange with a device can lead to loss of performance or dos. 
+
+==== Data Plane ====
+
+The scope of operation of network devices, it correspond to the traffic forwarded by the network devices and the paths that appliances choose for individual packets. Violation in this area can lead to failures, avaiability  loss and so on. 
+
+Protection must occur at all scopes. 
+
+== ACME ambient ==
+
+* Change default password in OPNSense (Management)
+* HTTP for accessing OPNSense -> should use HTTPS (Management)
+* Protecting Internal Networks (Dataplane)
+
+== Management Plane ==
+
+== Appliances access protection ==
+
+Access to a device can be of two kind:
+
+* in person: the risk is reduced, because a physical protection is in place.
+* remotely: the risk is higher, more people can access that device
+
+== Password Policy ==
+
+Password are the simplest and widely form of protection used, they have to be at least 8 character long and have to be a combination of alphanumeric and symbols. It is a good idea to change the password once in a while and to set a temporary lockout in case of wrong password input.
+
+== AAA Principle ==
+
+* Authentication: identify the user
+* Authorization: verify is a user is authorized to act on a system
+* Accounting: store the details of each action taken by each user to analyze it later.
+
+Often is possible to configure solutions that concentrate AAA functions in a single point in network devices, for example an ACS. This allows you to have a centralized point from which to manage all the devices in the network. An alternative to centralized solutions are local solutions.
+
+Another thing to take into account is the reliability of the time information,  to be sure that all the devces in the network ar esynchronized in time. This is critical when recontructing chain of events that occured on different devices.  For realizing this mechanism we use the NTP protocol. The idea is that there is a hyerarcy, there are utilities that checks which NTP server is used; it is foundamental to use an NTP server inside on the network, ensuring that all the logs can be compared temporarly.
+
+=== Syslog ===
+
+It is the standard mechanism for generating log messages, its structure allows you to efficiently separate the applications that generate logs from those that need to store them. The syslog server is critical to centrally collect and managing logs. 
+
+It's important to correctly configure syslog, in it there are eigh level of criticality (_security_) for individual log messages.
+
+1. Emergencies
+2. Alert
+3. Critical
+4. Errors
+5. Warnings
+6. Notifications
+7. Informational
+8. Debugging
+
+Devices send log messages with a level less than or equal to the set criticality level, it is essential to choose the appropriate level of criticality and that the syslog server has an adequate log storage capacity (space and computing capacity). 
+
+== Remote Access security ==
+
+All of remote access procedure must be done security: use VPN, HTTPS, SSH. 
+
+== Control Plane ==
+
+=== Protect Control Data ===
+
+Protect network devices to prevent them to use non-genuine information, so avoid unauth changes to the way trafic moves through the network and avoid overloading devices (DoS protection). 
+
+Flooding routers with packets for processing can impact their performance and cause DoS attack, so specific protections for the control plane limits this kin of traffic setting up thresholds for the reception: limit to $x$ packet per second for the protcol $y$ and/or allow $z$ traffic only from interface $k$. 
+
+It is important to manage dangerous ICMP packets (*redirect icmp packets*, and *unreachable ICMP*). 
+
+When possible use only authenticated routing protocols.
+
+== Data Plane ==
+
+The purpose of network devices is to move packets inside the network according to the security policies. Since devices can operate with virtually no administrator intervention it is important to enformce monitoring of the network. 
+
+=== Operate at all protocol stack layers ===
+
+It is necessary to intervene in several protocol stack layers, so:
+
+==== Layer 2 protection ====
+
+* Disable gratuitous ARP packets
+* Enable Dynamic ARP inspection, to protect against ARP spoofing and ARP poisoning.
+* Disable ARP Proxy IP if not needed
+* Enable Port security mechanism
+* Enable DHCP snooping mechanism
+* Enable IP source guard mechanism: blocking all traffic that has abnormal IP-MAC address association. 
+
+==== Level 3 - 4 ====
+
+Use access control lists, indentify packets considering only IP address, also depending on the specified policy (DNAT, SNAT). It is important to block packets with IP address spoofing, block packets that can lead to network mapping, and allow only packets that correspond to the traffic expected on the network. ACL routers can authorize only trusted sources:
+
+* Accept NTP only from a trusted server
+* SSH only from admin host
+* ICMP and SNMP only from admin host
+
+Narrow critical protocols only to authorized traffic sources.
+
+nano /etc/sysctl.conf
+
+net.ipv4.ip_nonlocal_bind=1
+net.ipv6.ip_nonlocal_bind=1
+
+dnsmasq.service
+
+after=network-online.target
+

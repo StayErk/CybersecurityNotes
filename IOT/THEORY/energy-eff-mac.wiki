@@ -1,0 +1,72 @@
+= Energy Efficient MAC Protocols =
+
+The general paradigms covered in the first lectures is implemented, nodes in IoT systems have to perform a Duty Cycle.
+
+There are different kind of schemes: *Synchronous* and *Asynchronous*. Synchronization is not trivial to obtains, IoT devices have inaccurate clocks that drift over time.
+
+== S-MAC ==
+
+It belongs to the class of Synchronous MAC protocols. The performance metric takes into account: *Energy Efficiency*, *End to end latency*, *Fairness* and *Net capability*. 
+
+=== Energy Efficiency ===
+
+Nodes have to perform Duty Cycle, and the system must not waste energy, so we have to reduce collisions, manage carefully overhearing, reduce control packet overhead, that it is the main point to be taken into account. A major problem in terms of energy consumption is *idle listening*, for the majority on time we don't know when a node will receive a packet, so it will be ON without doing anything. 
+
+The ability to scale up, and to support the throughput of the devices is important, potentially the density of the network can grow, and the probability of collisions with it. Of course the end-to-end latency has to be taken into account as tradeoff with the concept of *Fairness*: are some nodes more advantaged hen others? (like nodes closer to sinks).
+
+To be Low Power nodes have to perform Duty Cycle, so they will follow an awake/asleep schedule. In *S-MAC* nodes schedule are synchronized: so all nodes transmit in the same slot and receive in the same slot _if possible_; to keep the nodes synchronized a periodic exchange of information is needed in case of clock drifts. 
+
+This means that each node knows its neighbors and when they will be on, so each node will transmit only when the receiver will wake up. To acheive the S-MAC there is a set-up phase; each node waits to receive a schedule (by SYN control packet) by its neighbors, a node can become a *follower* of another schedule or it can become a *proposer* if it propagate its own schedule. 
+
+In large networks can happen that different nodes can become *proposer*, that propagates different schedules, a *follower* can follow multiple schedules if it receives more SYN packets (it will be more time ON).
+
+Each node will maintain a _schedule table_ that stores the schedules of all its known neighbors.
+
+=== Packet sending ===
+
+When a node wants to send a packet it waits for the destination to be ON and sends the packets following CSMA/CA with *virtual carrier sensing*. In order to minimize the ON time of nodes not interested in the conversation the *NAV* field is used to let them sleep until the communication is ongoing. To compensate the overhead of CSMA/CA a burst of data packet has to be sent and it will be acknowledged with one ACK.
+
+To maintain synchronization, SYN packets have to be sent periodically to maintain aligned the vision of time. For this reason the ON time of each node is divided in to parts:
+
+1. Random access part: used for SYN packets exchange
+2. CSMA/CA part: used to send RTS, CTS, data and ACK. 
+
+The channel resources in term of bandwidth are used just 1% percent of the time because of synchronization, for this reason throughput is reduces and latency increase since when a node generates a packet it has to wait for the next hop relay ON time before forwarding the packet. In case of increase in the traffic, can happen that a node can't acquire the channel to communicate with a neighbor. 
+
+
+== T-MAC ==
+
+In S-MAC there were two critical parameters: *active time* and *frame time*, a long frame time will increase latency, but the longer the frame time the lower the energy consumption. The active time should be dimensioned based on traffic; the problem of S-MAC is that the two parameters are fixed (based on the worst case), in T-MAC, however, the *active time is dynamically adapted* considering the amount of traffic that has to be exchanged and the frame time is fixed.
+
+The general mechanism of T-MAC is the same of S-MAC with some enhancements: 
+
+* if no transmission from neighbors for a time `TA` the active time is _aborted_ and the node goes to sleep.
+* The `TA` timer will reset if:
+	* data is received;
+	* communication is sensed on the channel: a node should not go to sleep while its neighbors are still communicating because maybe it will be the receiver of a subsequent message;
+	* data is transmitted;
+	* exchange of RTS/CTS.
+
+The value of `TA` depends of a fixed part $C$, a part equal to the time needed to the first node to transmit the RTS $R$, and a part equal to the time needed to a node to receive the RTS and send the CTS $T$; so $TA > C + R + T$ ($TA = 1.5 \cdot (C + R + T)$ in the paper).
+
+In some cases the reduction of the Active Time will be wrong: 
+
+*image*
+
+Furthermore early sleep may degrade throughput, so mechanisms have to be introduced to signal nodes that there is traffic for them at the beginning of the active time to prevent them to going to sleep. 
+
+*image of early sleep problem*
+
+== BMAC ==
+
+Berkeley Media Access Control is an Asynchronous MAC protocol. It do not require any synchronization. It's objective are:
+
+* Low Power Operation
+* Effective CA
+* Simple implementation
+* Efficient Channel Utilization
+* Scalable
+
+The key mechanism used is BMAC is the *CCA* (Clear Channel Assessment), it is a way for a node to determine if a channel is free. It consist to sample the *floor noise* (noise in the channel without transmission ongoing), and then a weighted average of the medians of the samples is used to compute a _base value_ (more weight to the recent measurements). 
+
+A transmission will be always over this base value, if a lower base value is sampled then the channel will be considered free. 

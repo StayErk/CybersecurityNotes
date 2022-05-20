@@ -1,0 +1,152 @@
+= VPN =
+
+VPN stands for virtual private network, it is a virtual network built on top of an existing network infrastructure, wich can provide a secure communications mechanism for data transfering between two endpoints. It is based on the use of ecnryption, different types of VPN depends on how and where perform encryption and which kind of security features will be implemented.
+
+A VPN can be performed in transfer mode, and in tunnel mode; in any case it has to be easy to use for the user. Some solutions used to implement VPNs are: Wireguard, OpenVPN and IPSec.
+
+== Security Goals ==
+
+* Confidentiality
+* Integrity
+* Authentication
+
+Plus
+
+* Replay protection: be sure that a packet do not belong to a old communication, use nonce or timestamp to implement replay protection.
+* Access Control: not everybody can access the VPN
+* Traffic Analysis protection. If you are a special host in the network you can infer some kind of information from the traffic (even if encryption is used) to perform traffic analysis; some VPN try to protect against it. 
+  
+  
+VPN should be transparent to users, software and hardware, and it can be flexible to adapt to different scenarios and it has to be simple.
+
+== Types of VPN ==
+
+Different types of VPN can be defined, they depends on the position of the edge VPN endpoint.
+
+
+=== Site-to-Site ===
+
+TO different sites are bound by a VPN by a edge VPN gateway. 
+
+=== Host-to-Site ===
+
+Exending one of the site to accept another host, or in another words to permit a host to access a site.
+
+=== Host-to-Host ===
+
+Connection from one host to another.
+
+The encryption can be performed at each level of the stack, obtaining different situations:
+
+1. *Physical*: transforming the single bits that forms the data to encrypt it. 
+2. *Data Link*:  the confidentiality and the integrity are already on the link, and it is full transparency; not really scalable.
+3. *Network*
+4. *Transport*
+5. *Application*: Traffic analysis is possible, only the payload is protected.
+
+
+It is best to introduce the VPN in the Transport and the Network layers; other options are used to protect only a single application, and are used only for special purposes: *S/MIME*, or *PGP*. Secure Data Link layer portocols are used with *PPP* and/or modem based communications. The VPN device placement affects: security, functionality and the performances, we can place it into:
+
+* The firewall
+* a device in the internal network
+* single interface VPN in DMZ
+* and dual interface VPN in DMZ
+
+The protection only estend between the two endpoints of the VPN. 
+
+
+=== VPN Firewall ===
+
+No further configuration (open ports) has to be done on the firewall, and the traffic between the devices and the internal network must go through the firewall, so it is checked. The problem is that it can be limited by the vendor of the firewall, and can be accessible to the external users via port 443 and can introduce vulnerabilities. 
+
+=== VPN inside ===
+
+The VPN traffic passes through FW on tunnel, so it is not analyzed, and the internal network is compormised if the VPN server is.
+
+=== Single interface in DMZ ===
+
+More complex to configure, and the traffic in the DMZ will be in clear text. 
+
+=== Dual interface VPN ===
+
+No more in clear traffic in the DMZ, because there is a interface on the VPN device connected to the internal host. 
+
+= SSL Tunnel =
+
+The tunneling is the operation that perform a network connection on top of another network connection. It allows two host to communicate through another network that they do not want to use directly. The effect obtained is that it is not possible to see what is the actual source and destination of the communication. 
+
+The *Site-to-Site* tunneling is a very general approach, in which any PDU can be transported from one site to another without its conent being processed by hosts on the route. It is implemented by encapsulating the whole PDU in another PDU sent out on the network connecting to sites. Also it is interesting to note that the real endpoints of the communication do not have to use IP. 
+
+A *secure tunnel* is a tunnel in which encryption is used on the internal PDU, making its content unaccessible to every host outside of the VPN. 
+
+The standard, and most used protocol is SSL 3.0, and it applies to the Transport Layer. When implemented on boundary routers it can provide a tunnel between two sites. SSL also provides a secure channel for every TCP based protocol; the authentication is commonly only between a endpoint. 
+
+=== HTTPS ===
+
+Is just HTTP over TLS, so it is perfomed on top of a TLS middle layer; when the symmetric key is exchanged the data transfer can start.
+
+SSL is a middle layer between the transport layer and the application layer; it is a general purpose fragment that can realize different task:
+
+* handshake: used to establish the secure connection; the key will be established with the handshake.
+* change chyper spec: selects agreed keys and encryption algorithms
+* exchange data
+* alert: exchange debugging info
+
+==== SSL/TLS Record Protocol ====
+
+*image*
+
+*image SSL handshake*
+
+Usually the X.509 type is used for the certificate. 
+
+The security capabilities of SSL/TLS are expressed by the CypherSpec, that it is componed by: 
+
+1. Version of SSL/TLS
+2. Key Exchange Algorithm
+3. Grade of encryption
+4. Encryption algorithm
+5. Block encryption
+6. Crypto specification
+
+The *SSL/TLS* heartbeat it is an extension that allows to keep an established session alive; it was used to avoid re-negotiation of the security parameteres, so the same parameters are used even if no data is exchanged. It was implemented with the introduction of the *HearthBeat Request/Response* ([[https://heartbleed.com/|Heartbleed bug]]).
+
+
+== IP Sec ==
+
+It is a network layer protocol used to provide security over IP, it is part of IPv6 specification and an add-on for IPv4. It can be divided into three big protocols.
+
+1. *IKE* (Internet Key Exchange). It is used to exchange the keys;
+2. *ESP* (Encapsulated Security Payload). That supports encryption and optionally authentication.
+3. That supports integrity.
+
+When we have to perform a secure connection between two endpoints we have to make possible a security association between the two endpoints, that is guaranteed by a common encryption algo, the mode of operation, and the kind of traffic. If two end-points need a duplex channel two SAs must be defined.
+
+SA parameters must be negotiated using IKE between sender and receiver. Each SA is identified by a *security parameter index*, a *destination address* and a *Security protocol indetifier*. The security parameter index allows the receiver to select the required SA, and it is included in each packet. 
+
+=== Transport Mode ===
+
+Provides a connection for the trasport layer, packets are embedded as payload in an IP packet.
+
+=== Tunnel Mode ===
+
+Provides protection for an IP packet embedded as a payload in an IP packet. It is implemented at Network Layer. 
+
+
+==== Authentication Header ====
+
+When we use authenticate header in IPv4, it is inserted after the outermost IP header, depending on whether Transport or Tunnel mode is used. The authentication can be perfomed using an HMAC or a Public/Private Key approach. Some of the fields are not authenticated like TTL. 
+
+In IPv6 AH is inserted after the outermost IP header, depending on wheter Transport or Tunnel mode is used; and by design it is an Extension Header. 
+
+The Authentication Header includes different headers. 
+
+==== ESP ====
+
+In IPv4 and transport mode the original data will form a new packet that includes a ESP head, and ESP tail and an ESP auth. In tunnel mode the new IP header is outside. 
+
+=== IP Sec vs TLS ===
+
+
+
+

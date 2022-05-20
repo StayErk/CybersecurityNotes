@@ -1,0 +1,8 @@
+= OPNSense Firewall Rules Explained =
+
+In OPNSense there are three *Rule Action Types*: *Pass*, *Block* and *Reject*:
+
+* *Pass* similar to *Accept* in `iptables` is used to allow traffic to pass;
+* *Block* similar to *Drop* in `iptables` is used to silently drop the traffic;
+* *Reject* drops the traffic and notify the sender with a ICMP packet.
+

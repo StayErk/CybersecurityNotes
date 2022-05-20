@@ -1,0 +1,104 @@
+= Proxies = 
+
+The concept of Proxy, dates back to the 1994, at the time a *proxy* was a service that provided access to the Web for people on closed subnets who can only access the internet through firewall. It is an application level service used to provide internet access to a subnet without creating a security hole. Namely is a single host handling all the requests for several users. 
+
+
+In the application layer we are dealing with real data, and this represent the main difference from VPN: there is a real data exchange. 
+
+=== Standard HTTP transaciton ===
+
+There is a request from the client like `GET /request HTTP/1`, and a response from a server build like `HTTP/1.0 200 data`.
+
+=== Proxied HTTP Transaction ===
+
+There is no effective intereaction between client and the server, there is an intermediate (the proxy) that perform the request to the server on behalf of the client. The HTTP request for a proxy server includes the host, so the proxy can extract the host to which the request should be performed. So all the paths are absolute, and the name of the proxy as to be specified.
+
+The proxy has to understand and to deal with the request of the client, so it will only works with HTTP.  For this reason the proxy has to be able to understand different protocols like FTP and others; in general they have to understand the *semantic* of the request. A VPN do not have to understand the semantic of a request because it works on lower layer.
+
+== Benefits of Proxies ==
+
+Authontication, Authorization, and auditing; also it is possible to perform whitelistening and blacklisting. There are also some performance boosts. The proxy can cache some commonly reqeusted resources with `If-Modified-Since` http header. 
+
+== Forward Proxy ==
+
+* HTTP requests are performed in absolute-form to the proxy, the proxy will be the middle point fowarding requests and responses.
+* Other non-HTTP requests can performed with HTTP tunneling, HTTP CONNECT *that is a special case of request of HTTP, uses to forward any kind of connection using HTTP*, so it allows any protocols that uses TCP; so it will only forward a stream of byte. It is like `CONNECT host.domain/request HTTP/1`. It is important to limit the `HTTP CONNECT` only to 443. In this case the proxy can't filter data. 
+  
+== Content Filtering Proxy ==
+
+After user authentication, HTTP proxy controls the content that may be relayed, so ita can control which content is requested. It can be based on semantic searches and / or blacklist. Also it can perform virus and malware scan or to block executables.
+
+== Anonymizer Proxy ==
+
+It is a special kind of proxy that is not supposed to be used in a network, but it is a server that can be located anywhere in the Internet to anonymize a request to a particular webserver. They are used to access restricted content. 
+
+
+== SSL Forward Proxy ==
+
+It is a way to decrypt and ispect SSL/TLS traffic from user within a network and to the internet. This kind of proxy works by establish a doueble SSL connection: from client to proxy, and from proxy to server. It can be used to perform intrusion detection.  The proxy will *use a certificate to establish itself as trusted third party* to the session between the client and the server. There is full trust on the proxy.
+
+== Reverse Proxy ==
+
+Reverse rpoxy are similar in the concept, but they operate in behalf of the server; from the point of view of the client everything is transparent. They are tipically used for static resource caching, load balancing and TLS accelleration. Typical for the Content Delivery Network it can be used to access several servers into the same URL space. 
+
+=== Internal server protection ===
+
+Application level proxy will receive the requesst from the client, and clean it before sending it to the server; in a more simple way it can protect against DoS attacks, and provide HTTPS support to HTTP servers. Another aspect is that it can add AAA to services that do not have them. 
+
+
+=== Application Control ===
+
+A reverse proxy (WAF) can apply sanitizations on the client requests, to get rid of anything that can cause harm to our servers. 
+
+=== TLS Accelleration ===
+
+Public Key encryption can be process-intensitive, so a proxy with special hardware modules to perform public key encryption can take the burden of the TLS handshake in behalf of the server. 
+
+=== SSL Offloading ===
+
+Good for Intrusion Detection System, and can be used also to perform *SSL forwarding*, allowing inspection of TLS/SSL encrypted data to prevent... 
+
+
+== HTTPS ==
+
+Another technique can be used is the *SSL bumb*: the proxy generates dynamically server certificates, in such a way it can impersonate that server. What if the hostname is _unknown_? Think about of Virtual Hosts, according to the hostname field in HTTP header the server understand to which website it referred.
+
+If HTTPS is used, SSL/TLS connection requires a certificate to be sent by the server, but the certificate for which website should be sent? To solve this problem there is the need of the TLS protocol: SNI (*Server Name Indication*), the server has to know the name of the website before the handshake. The fact that the server name is sent in clear text represent a leakage, and it is vulnerable to *Domain Fronting*. 
+
+== Socks Proxy ==
+
+It is very similar to the CONNECT proxy, but it is more versitile. It do not stick to HTTP, it works at the session layer of the ISO/OSI model, and can implement Authentication, tunnel IPv6, UDP and TCP and can work as a reverse proxy. It is implemented with SSH, putty or Tor.
+
+The proxy will be the remote host, so the real request will be made by the relaying machine. It can relay any kind of protocol, not only HTTP.
+
+== Transparent Proxy ==
+
+For all the above the client should be aware that there is a Proxy, the aim of the transparent proxy is to try to provide the same features but without letting the users to be aware of the proxy. It is implemenented by intercepting the standard requests of the users and sobstitute them with the proxy request. 
+
+This kind of proxy works in a completely transparent way to the proxy. It is commonly used by ISPs in case of mobile users. 
+
+
+At the start of a session a TCP packet travels into the system expecting to cross an IP gateway; the proxy software see the packet and will ACCEPT the packet in the INPUT chain. In this case the Proxy is create an entire different packet (*difference with NAT*).
+
+The transparent proxy has some problems; it can't work with HTTPS, and to be able to realize a real transparent proxy, only a subset of packets have to be handle by it, SMTP, POP and IMAP will break, so it is better to use a *Policy Based Routing*. 
+
+=== Policy Based Routing ===
+
+It is based on the idea that the routing it is not only a "_destination driven process_", but the routing decision can be based on other info:
+
+* Quality of Service;
+* Source Routing;
+* Traffic Shaping;
+
+So it goes beyond simple destination driver routing. We can use PBR to properly set up a transparent proxy. 
+
+*Any TCP connection with destination port 80 MUST be forwarded to the proxy*, can be a useful rule. 
+
+=== ICAP Internet Content Adaptation Protocol ===
+
+It can be used to make transformations of the content of the packet, it is an abstraction. In essence is a lightweight protocol used to perform a remote procedure call on HTTP messagges.
+
+Coupled with a transparent proxy can be used to provide additional functionalities in a full transparent way. So expensive operations on the content can be performed by "surrogates"; for example parental control, compression and virus check.
+
+
+

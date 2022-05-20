@@ -1,0 +1,81 @@
+= SIEM =
+
+SIEM stands fro Security Information management and Security Event Management, it is used to have an overview for an entire network, to observe all the activities of the network. 
+
+* It collects log data for analysis, altering responsible individuals of security threts and events;
+* Conducts real-time system monitoring, notifies network admins, and establish correlation of events. 
+
+It is used to help network administrator. It is composed by a set of different componets that makes possible this kind of solution.
+
+The power of the SIEM is given by the data fed to it. There is no standard SIEM protocol or Methodology; most of them:
+
+* automatically collect and process information from different distributed sources;
+* store it in central locaiton;
+* correlate events;
+* produce alterts and reports;
+* help for compliance and security incident management.
+
+They can be agent-based ot agent-less. 
+
+They are very important to show that a company is compliant with a given regulation. 
+
+
+== Log Management ==
+
+It is the raw that on top of which the security is built, the critical nodes, send relevant system and application logs to a centrilized database managed by the SIEM application. The SIEM application normalize the data and let them available to future uses like forensics. 
+
+Logs are fundamental, and some decisions must be taken into account; like data retention and data destruction. Log sources are endless, depending on the system, and on what we want to monitor the SIEM can handle: 
+
+* Syslog of servers and hosts;
+* Alerts from IDS and IPS;
+* Flow data;
+* Databases;
+* VPN gateways;
+* Firewalls;
+
+and many others.
+
+A critical question is where to store the logs, they can grow fast. 
+
+
+=== Event Data vs State Data ===
+
+Event data provide you with an exact list of all events happened somewhere on a system. State Data gives the view of the overall state of the system; so a view of a overall state of the system. 
+
+
+
+== IT Regulatory Compliance ==
+
+SIEM allows to build audit, and validate compliance to provide proofs of regulatory compliance, SIEM can produce reports often needed by business to provide evience of self-auditing and to validate their level of compliance. 
+
+SIEM can provide evidences of best practices, it also can sign the logs (authentication and integrity).
+
+== Event Correlation ==
+
+SIEM tries to combine different views and evidence to correlate other events and provide a more complez picture of the health status of the system. 
+
+Log correlation monitors the incoming logs for logical sequences, patterns of attack, relationships between events and special data. The ultimate goal is to analyze and identify events invisible to individual systems to realize that something bad is happening. Supporting data can be used to augment logs data. 
+
+Correlation is performed by a special engine, it is the intelligence part, mainly closed source and it perform normalization and make use of correlation rules and Machine Learning. 
+
+
+== Active Response ==
+
+Some triggers can enforce automatic or manual responses like update OS and application and more. 
+
+== Endpoint Security ==
+
+Most SIEM system can monitor endpoint security to centrally validate the "health" of a host, they can manage endpoint security, making adjustments and improvments to the node security.
+
+SIEM can trigger antivirus and antispyware updates, patch the OS and applications, make sure that firewalls are well configured. It can perofrm HIDS, and HIPS. It can manage removable media. 
+
+== SIEM Stack ==
+
+There are different phases that happens in the SIEM, we can divide it in layers:
+
+* Event Layer;
+* Normalization Layer;
+* Correlation Layer;
+* Reporting Layer;
+
+

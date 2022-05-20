@@ -10,4 +10,81 @@ To perform Wardialing the attacker has to have specific Hardware (to handle high
 
 === Countermeasures ===
 
-Require a password to make account inquiries, sanitize sensitive information and educate employess.
+Require a password to make account inquiries, sanitize sensitive information and educate employees.
+
+
+==== Brute Force Scripting ====
+
+Dial Up lines can be enumerated in a brute force manner by probing an entire interval of telephone numbers; when the attacker, using `wardialer` found a subset of telephone lines connected to a server the attacker can be in different situations:
+
+* *Low Hanging Fruit*: easy password;
+* *Single Authentication with unlimited attempts*;
+* *Single Authentication with limited attempts*;
+* *Dual Authentication with unlimited attempts*;
+* *Dual Authentication with limited attempts*;
+
+Brute forcing scripting tools are: `ZOC`, `Procomm Plus` and `ASPECT Scripting Language`. 
+
+ The IT team has to do an inventory of existing dial-up lines, and consolidate all dial-up connectivity to a central modem bank and position it as an *untrusted* connection off the internal network. It is important to make analog lines harder to find, and make sure that telecommunication equipment is physically secure. The network administrator has to monitor regularly log done by dial=up software, and require multi-factor and dial-back authentication. The dial-back authentication is done by two telephone calls: the external client will perform the first call, the second call is performed by the server to only the allowed users that have access. It is important that the company establish firm policies to limit the dangers of Social Engineering. 
+ 
+ 
+ == PBX Hacking ==
+ 
+ Private Branch Exchange are telephone exchanges used for voice communication, the attacker will follow the same procedures of standard Dial Up Hacking, it is important to reduce time when modems are turned on and deploy multiple form of authentication. It is important to secure this technology because a lot of organizations use in a hybrid way PBX and VoIP. PBX services are typically protected by a PIN, if the attacker manage to find out the PIN of a user he can pretend to be that user. 
+ 
+ == Voice Mail Hacking ==
+ 
+ Similar to Dial Up Hacking, there are tools to perform this kind of attack, a phone number is required to access the voicemail. To countermeasure it do not allow unlimited attempt of login. 
+ 
+ == VPN Hacking ==
+ 
+ Virtual Private Network has replaced dial-up as the remote access mechanism. They are the first level of defense of an organization. IKE is the attacked component of a VPN protocol; before entering the details of VPN attacks, Google Hacking can be used to acquire informations about the VPN configurations. 
+ 
+ Cisco VPN is one of the most used VPN client in the world, if the target organization use a Cisco VPN, the employees will used a Cisco VPN client that uses a `pcf` file, so google `filetyp:pcf`. The attacker can find the configuration file, import it and connect to the target network to launch further attack, retrieve password that can be useful for later. To countermeasure this kind of resource disclosure use Google Alerts service and educate user. 
+
+VPN implements secure tunneling, at the end of the _tunnel_ there are two machines that encrypt the traffic. The mechanism of the VPN is completely transparent to the users. The key used to encrypt the payload is preshared between the gateways. Can be implmeneted *side to side* (dedicated devices on both sides) or *client to side* (software on client side). The IKE protocol is excecuted between the VPN endpoints, and its objective is to negoziate shared keys ant it is based on *Digital Certificates*. If the attacker manages to get inside the negotiation of the IKE he can accesss the communication.
+
+*split VPN* is dangerous to use because the of which traffic has to be exchange on the VPN is performed by the Client (weakest link); a malware can configure the client side to not  send confidential informations over the VPN.
+
+There are several versions of the IKE protocol, some more vulnerable that others, so the attacker has to perform an enumeration of the VPN network. 
+
+The attacker will probe port UDP 500 to check if a VPN gateway is running, then he will perform *fingerprinting* on that port to identify which vendor version of the VPN is running and in which mode the IKE is configured to operate:
+
+UDP is used because all the connections inside the VPN will use their own protocol (TCP for HTTP, or UDP for DNS i.e.)
+
+The IKE protocol is splitted in two phases, the first one can be configured in two possible modes:
+
+* Main mode (most secure one, but slower)
+* Aggresive mode (less secure, but faster), in the aggresive mode some authentication information are transmitted in clear text; for this reason it is vulnerable to eacesdropping. 
+  
+The attacker can identify the IKE mode used with `IKEProber` like tools. The IKE phase 2 is established thanks two the informations transmitted in the IKE Phase 2. It is not possible to do much to countermeasure VPN fingerprinting and IKE probing 
+
+==== Attack IKE Aggressive Mode ====
+
+IKE Phase 1-Aggresive mode does not provide a secure channel, so the attacker can easily collect authentication informations with tools like `IKECrack` or `Cain`. To countermeasure this kind of attack, aggressive mode should be discontinued and token-based authentication should be used if aggressive mode must be utilized.
+
+==== Hacking Citrix VPN ====
+
+A popular *client to site* VPN solution is Citrix, it provides access to remote desktops and applications. Citrix is very well integrated to the Windows environment. If the attacker manage to gain user access, and he manage to create  a process inside the Citrix environment, that process will be executed inside the intranet of the company. Furtherome a lot of companies provide access to COTS applications (like word, and excel) inside Citrix that suffer of many vulnerabilities, so the attacker can exploit them to exploit the Citrix environmnet itself; note that the Citrix environment runs with high privileges, so the shared applications also run with high privileges.
+
+To countermeasure this kind of attacks Citrix has to be executed into segmented and monitored / limited environment; implementing 2FA to access the Citrix environment.
+
+== VoIP Attacks ==
+
+VoIP is the implementation of telephone calls over an IP network, VoIP relays on basic protocols: *H.323* and *SIP* that are signaling protocols. They implement the call setup, the functions of a telephone calls and the disconnection. Today *SIP* is the predominant solution, because it implements complex functions like instant messagges. 
+
+All the hacking techniques can be applied when attacking a VoIP network. Voice and data traffic will flow in the same network facilitating the attacker. There are tools specialized to scan SIP networks like `SiVuS` and `SIPVicious`, they will return all the VoIP devices inside a given network. If the network is flat all the VoIP devices are scanned, to countermeasure it, the data network and the VoIP network must be segmented. A basic configuration of the devices (phones and VoIP servers) has to be performed in order to encrypt the traffic; the configuration itself is performed at boot time by the phone by pulling a configration file from a VoIP server.
+
+Most of the time the standard configuration is not very secure, but it is based on *Security by obsucurity*: the retrieve of the configuration is commonly based on *TFTP* servers, so user/password for it can be transmitted in plain text or the attacker can try to download the configuration file via `TFTP brute-force`. To countermeasure this kind of attack is fundamental to restric access to TFTP. 
+
+The attacker can also enumerate VoIP users via traditional manual or automated _wardialing_ methods observing responses. Thats because in VoIP networks each telephone extension it's like a username. The extension and password are used to access private information of the user behind that device (voicemail, call registry and more). The password most of the time is a simple 4-digit pin. Automated enumeration tools that can be used are: `SIPVicious`, `SIPScan` and `Sipsak`.
+
+One of the objective of SIP attack is to intercept phone calls. Calls can be intercepted easily by an attacker, the attacker will intercept the signaling protocol, then the codec used to encode the voice signal; after that the attacker will convert the datastream to popular file types. One of hte major points in intercepting the telephone calls, is that the attacker should be on a node in which the data stream is passing through. However there are tools like `dnsiff` and `arp-sk` that can be used to redirect the traffic using arp-spoofing, to intercept the call even if he is not on a node collocated on the flow of the communication. The  codec can be ientified via the metadata informations that are exchanged at the beginning of the call setup; furthermore there are useful tool capable to convert the data stream to a popular audio file format (`vomit`, `scapy`).
+
+An offline interception attack can also be perfomed: the attacker will record the traffic as it is, and the offline he tries to decode it, the problem with an offline interception is that the recorder traffic is encrypted, so the encryption has to be broken; tools used are: `Wireshark`, `Cisco SKINNY`, `SIPDump` and `SIPcrack`. 
+
+*Denial of Service attack* can performed on a entire infrastructure or against a single device. Sending a large volume of fake call setup signaling or flooding the phone with unwanted traffic DoS can be performed, `inviteflood` and `hack_library` are some tools used to perform DoS attack on a VoIP network. To countermeasure DoS attack segmentation of the networks has to be used. 
+
+VoIPs attacks are complemetary attacks, used to gain large amount of data and informations. IDS, and IPS have to be deployed in the virtual lan of the VoIP network. 
+
+

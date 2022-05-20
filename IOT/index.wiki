@@ -8,9 +8,12 @@ In this (and the following) pages there are my personal note taken when attendin
 - [ ] [[./THEORY/f_cellular_systems|Fundamentals of Cellular Systems]]
 - [ ] [[./THEORY/locgical_channels.wiki|Logical Channels]]
 - [ ] [[./THEORY/procedures.wiki|Procedures]]
-- [.] [[./THEORY/adhoc.wiki|AdHoc wireless networks]]
+- [X] [[./THEORY/adhoc.wiki|AdHoc wireless networks]]
 	- [X] [[./THEORY/adhoc-routing.wiki|AdHoc Network Routing]]
-	- [o] [[./THEORY/geo-routing.wiki|Geographic Routing]]
+	- [X] [[./THEORY/geo-routing.wiki|Geographic Routing]]
+- [o] [[./THEORY/energy-eff-mac.wiki|Energy-Efficient MAC protocols]]
+- [ ] [[./THEORY/2g.wiki|2G+ and more]]
+- [ ] [[./THEORY/mac_routing.wiki|MAC Routing]]
 
 == Lab ==
 	* Introduction to C++

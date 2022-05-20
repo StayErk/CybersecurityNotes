@@ -1,0 +1,124 @@
+= Evolutions of Cellular Systems =
+
+== 2G+ Cellular System ==
+
+Twenty years ago there was the initial need to support not only SMS but also some data exchange, in a time that there weren't Smartphones and high usage of internet as today.  For this reason therewas the need of supporting Packet Switching and Circuit Switching, with an increase of data rates. Data Encoding quality as to increase to permit the encoding of Multimedia, not only voice. All of the above can be represented by an increase of functionalities granted by the System Operator; there was a need of changing the architecture.
+
+A first answer to these need was provided by *2G+* systems (EDGE), from 2G+ and beyond, with exception for 5G an *Evolutionary Approach* has been used, so each system has been built over the GSM approach with very limited impact on the cell operator core network. 
+
+Also it is important to take into account the fact that each evolution of the Cellular Network takes years to be implemented. All of the network elements have to be upgrated, novel technologies and system components have to be implemented and everything has to be tested and validated. Any evolution of the Cellular Network was driven by demand of services by the users. 
+
+In general it has been much easier to make changes in the radio access services than in the core network of the cellular operator, that is the reason of little evolution of core networks.
+
+The innovation of 2G+ were:
+
+* An enhanced full rate codec based on ACELP. It was based on two different filters, it required 13Kb/s
+* An Adaptive MultiRate was introducted, it made possible to adapts to available channels (half rate or full rate), to change the rate depending on channel propagation conditions. It implements a dynamical trade-off between quality and avaiability.
+* Tandem Free Operation limits use of transcoding which implies degradation of voice quality, allowing multiplexing flows of coded speech signal on the PCM channels in case of MS-MS communication. This.
+* Enhanced data rates was achieved through improvements of physical layer (*More bits for hertz*), allocating multiple slots to the same MS. 
+  
+A lot of novel services and application come up like: *Localization Services*, that was implemented by triangolatization among BTS allowing to achieve a precision of 100m of radius. *Number portability* was intruduces, in such a way the user can maintain its own telephone number even when changing operator; this feature was implemented by a change of paradigm: the *SIM becames the master*, so its can initiate communication with *ME*, so downloads via the radio link to the SIM are possible. 
+
+This last improvment was responsible of today evolution of data access, and it itroduced the *SIM Application Toolkit*, thanks to the SIM can ask the ME to perform actions like:
+
+* Set up a call to a number in the SIM;
+* Request the ME to provide locally stored informations, that the SIM can modify and analyze. (Used to allow transparent connectivity or to bar the call);
+* Actuate Tone generation;
+* Launch a Browser
+
+THe *SIM Toolkit* introduced a lot of services, but at the same time the complete control is in the hands of the operator. 
+
+== EDGE ==
+
+Improvements on the radio interface have increased the MS achievable data rate without changing the complete architecture. EDGE is a radio access technology, so to achieve higher data rated it used *8PSK* modulation (_three times more bit per symbols_). So it achieves a gross data rate of 59,2 Kbit/s. 
+
+=== Adaptive Modulation ===
+
+Adaptive Modulation improves EGPRS code rate, achieving 3 times as much data rate. A dynamic selection of channel coding and modulation is implemented, based on the SNR of the radio signal. In general we say that the net transmission data rate is reduced or increased depending on the quality of the radio channel. 
+
+== GPRS ==
+
+The widespred use of thernet has raised the need to combine circuit switched and packet switched communication in cellular systems, and support data transmission, this kind of technology was supported first by GPRS (*General Packet Radio Service*), in the backone *IP* was used for packet switching, integrated with the circuit switching network.
+
+To support this evolution newer network elements have been introduced. First of all they introduced *GNS* (GPRS support node), that is an *IP* routers supporting mobility management. The *SGSN* route IP packets from/to a set of MS under their area. So each area is splitted in finer grain routing areas, of course there is also a device that interconnects the cellular network with externa packet data networks, the *GGSN*. Each network element must be assosiacted with an IP address. 
+
+In the *BSSS* level a new functional entity is added: the *PCU* is used to manage data transimission over the radio links. The PCU allocates resources used to transmit data packets. 
+
+{{file:./imgs/pdpattach.png}}
+
+
+
+= Requirements for LTE =
+
+The requirements identified to derive the development of LTE where significantly different to the ones of 3G and 2G systems. A support for the different integration of different kinds of technology and transmit data and voice over an IP network. 
+
+A multicarrier technology has to be used to increase the physical number of bits per mhz, so its used OFDMA for downlink, and SC-FDMA for UPLINK. The base stations have a multiantenna technology, to support the performances of LTE. In LTE there is a wide support of QoS, bearer is use to allocate a given QoS, a bearer is a IP packet flows with a given guaranteed QoS between the gateway and the user which belongs to the same flow. It is a mechanism to allocate resources on the radio access and on the core network of the operator.
+
+In LTE systems the mobile station can send a request to start a bearer, the network will identify the resources needed to be allocated ot that specific bearer, so:
+
+* allocate IP address
+* request a bearer with some resources
+* allocate a bearer with given resources
+
+if the resources are not available the quality of service can't be supported, because another flows will degrade the quality of other flows. 
+
+*QoS support image*
+
+Ther is a set of eterogenous QoS classes that are supported, and identified, in the LTE standard. Usually a bearer will have a minimun guaranteed bit rate or a maximun latency request. So in LTE full QoS is supported, and dynamic scheduling of the resources is used to assure this support. 
+
+== LTE Net Architecture ==
+
+In LTE, the logic of the Base Station is been implemented in eNodeB (performs all the objectives of BSS and BSC), the network operator is an all IP network, and the control plane devices and the data plane devices are sepatated. 
+
+* P-GW: in charge of the ip address allocation, QoS support, conenciton with external network.
+* S-GW: implements the switching functionalities
+* MME: supports tracking area identification (equivalent of Paging, and Location Area Update), Mobility management and security
+* HSS: it combines the rules of the Home Location Register and of the Authentication Center. 
+  
+  
+On the radio channell data packets are transmitted, this means that in the protocol stacks the resources have to be allocated dynamically because an etherogeneus set of resources can be exchanged in the network. 
+
+* Traffic Flow
+* Channel Condition
+
+Changes over time, so resources have to be allocated basing on the user needs and on the channel conditions: the eNodeB can dinamically do this optimizations because it has enough computational power. 
+
+FEC and interleaving has to be used, because BER is high on wireless channels, another improvement is the automatic retransmit request protocol.
+
+OFDMA splits the resources available in small subcarriers, each subcarries is of 50kHz, but the minimun element that can be allocated is of 180kHz in the frequency doain and 0.5ms in time domain. The more blocks a user gets and higher modulation is used, the higher is the bitrate. Its possible also to transmit in to multiple blocks in the same time.  It has a very high level of flexibility, that allows an optimized use of resources. The eNodeB takes allocation decision every 1ms. 
+
+
+Control traffic is multiplexed in the same physical resources used for data transfer; refernce symbols are used to estimate channel quality used for optimization decisions. 
+
+Rather than having a single modulation scheme, and a single FEC scheme, in LTE its possible to use different modulation schemes that have different FEC, so its possible to dynamically change, per flow, the physical layer. 
+
+=== femto cell ===
+
+It provides higher QoS than WiFi but it is more costly. 
+
+
+= 5G Systems =
+
+It is not fully implemented yet, it is based on the need of an ubiquitous ultra-high broadmand mobile computing infrastructure, not only for human connection, but also for IoT devices, veichles, and much more. Furthermore in the last years there was a huge evolution in the computational capabilities of cloud infrastructure, so the computational capabilities can be distributed across all the network: in the cloud, in the local network, and closer to the user; leading to the *Fog intellingence*. Some objectives are very low-latency and high speed communication.
+
+The core network elements have been redesigned to exploit software design networking; improving coverage and QoS, while lowering energy consuption to allow super low power device to access the network. 
+
+The system have to be flexible and to use every technology possible: WiFi, cellular, and satellite ones; To increase bandwidth higher frequencies have to be used (millimetric waves), reducing the cost for bit, optimizing the cost and using different business models. 
+
+== KPIs ==
+
+* Imporve 1000x more throughput in aggregate
+* Latency down to 1ms
+* Impoving Energy Efficiency
+* Coverage everywhere
+* Novel business model
+
+== System level Challenges ==
+
+In terms of radio access, the performaces are achieved used: millimiter waves, reconfigurable transreceviver, adaptive modulations, radio access and different communicatoin models. 
+
+On the physical layer massive MIMO, novel modulations and SW defined approaches; from orthogonal to non orthogonal approaches with full duplex operation. VLC can be used to perform non radio communication.
+
+== NB-IoT ==
+
+

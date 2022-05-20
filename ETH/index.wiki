@@ -10,13 +10,15 @@ This page (and the followings) contains my personal notes taken during the [[htt
 - [X] [[./THEORY/scanning.wiki|Scanning]]
 - [ ] [[./THEORY/enumeration.wiki|Enumeration]]
 - [X] [[./THEORY/hacking_win.wiki|Hacking Windows]]
-- [ ] [[./THEORY/cyber_crime_and_apt.wiki|Cyber Crime and Advance Persistent Threath]]
-- [o] [[./THEORY/remote_voip.wiki|Remote Connectivity and VoIP Hacking]]
+- [X] [[./THEORY/cyber_crime_and_apt.wiki|Cyber Crime and Advance Persistent Threath]]
+- [X] [[./THEORY/remote_voip.wiki|Remote Connectivity and VoIP Hacking]]
+- [ ] [[./THEORY/wireless_hack.wiki|Wireless Hacking]]
 
 == Laboratory ==
 
 - [X] [[./LAB/HackingUnix.wiki|Hacking Unix]]
 - [o] [[./LAB/web_security.wiki|Web Security]]
+- [ ] [[./LAB/ctf.wiki|CTF Bonus Lecture]]
 
 
 ===== Disclaimer =====

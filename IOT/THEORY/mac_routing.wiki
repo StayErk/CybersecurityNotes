@@ -1,0 +1,89 @@
+= MAC Protocols for sensing systems =
+
+== WiseMAC ==
+
+It tries to improve the S-MAC, in a general setting any application will operate in different states, for instance; periodic informations has to be sent periodically to check that the network is working and/or to exchange some measurements. 
+
+Another state can be a state in which the system may can send more data, so different Duty Cycles have to be considered.
+
+Because of the clock drift each device can have a different time of vision, so even if the network are exchanged control information used for synchronization the transmission has to take into account the uncertainty of the synchronization. There is the need of a guard time. 
+
+The WiseMAC take into account the clock drift, so it will use a guard time; once the devices are synchronized they can exchange data about their time schedule to improve the following transmissions. 
+
+=== Clock DRIFT ===
+
+Devices can have different clock accuracy, it is defined in terms of *parts per million*, for instance a RTC clock on IoT device can have a drift around 10ppm, so it will lose $86400 \cdot 10^{-5} = 0.8s$. This error will lead to a max drift of about 300 seconds in 6months of operation. 
+
+A small drift can be critical in some system setting. 
+
+== IoT Standardization ==
+
+Because there are a plethora of solutions for IoT application a standardization is needed. Some of the best standardization, it is a highly dynamic environment.
+
+IEEE 802.15.4 was the first low power radio standard, a following solution was made by the *ZigBee alliance*, it standardized proprietary solutions for ad hoc control protocol (at the beginning it uses AODV). Other alliances like *IPSO* were founded, they started to make IoT devices addressable (use the IP protocol). 
+
+IETF 6loWPAN made possible to enable an effective use of IPv6 on low power, low rate, simple devices. This standardization interested also Intel IoT embedded devices. 
+
+Some possible applications were not cover by these first standardizations, so numerous follow ups were needed to find new and different solutions.
+
+=== 6loWPAN ===
+
+Smart devices will have to be integrated and connected to the internet, so the information flows has to be send to the actuators, and to the control center. There can be hash networks of different devices and sinks. The sink can implement smart logic, and there is the edge of the network with the Internet. The support of IP has to be optimize to the access network. An adaptation layer is needed to consent this kind of optimization. 
+
+LoWPAN layer adapt the IPv6 protocol to the IEEE 802.15.4 MAC and PHY protocol that is at the bottom of the stack. 
+
+IEEE 802.15.4 supports different bands, to be used all over the world, it uses ISM bands: 2.4GHz and 868MHz. The data rate is around 20Kbps up to 250Kbps. 
+
+The structure of the data unit is composed by:
+
+* preamble to synchronize (32bit)
+* a start packet delimiter
+* physical layer header
+* data unit (includes the informations of the higher layers)
+
+The topologies used are the star and the mesh one, with a maximum number of hops that a packet can traverse. In mesh topology the conversation is from the sink to a PAN coordinator. 
+
+The PAN coordinator send commands, frequency selection, net ID assignment and performs packet relaying. Co-ordinator just handle request to join, and forwards packet. 
+
+The PAN coordinator assign itself a short 16bit address (not the IEEE 64 bit addresses), smart lossless header compression.
+
+In the physical layer payload there is the MAC protocol Data Unit and the PHY service Data Unit. There are supported two modes:
+
+* Beacon mode. A central point is used to arbitrate, sending periodically a network beacon. 
+
+* Beacon-less mode. Standard CSMA/CA 
+  
+  
+=== Adaptation Layer 6LoWPAN ===
+
+Addressing has to be compressed whenever possible, the devices will have a short 16bits local address, so every time the 16bit address is used the overhead is reduced. 
+
+There are different kind of header packets format to optimize as much as possible the communications, like to indicate what parts of the header are skipped. 
+
+The routing can be performed in two modes: Route-Over (IP routing) and Mesh-under (ROLL). The V and F flags are used to indicate which kind of address is used (16 or 64 bit).
+
+== Routing Protocols ==
+
+=== Collection Tree Protocol ===
+
+It performs converge-casting, the devices are organized in tree like logical topology. Each device will select a parent, basing on some metric. Given the fact that the BER is significant there is the need to guarantee reliability, that will lead to robustness, energy efficiency and hardware independence. 
+
+The structure used to deliver information as to dynamically computed. The metric used to select the parent is the *ETX*, that it is computed on performance experienced in the recent past by beacon and data packets for the local 1-hop ETX,,loc,,. It uses a *Distance vector approach*, a weighted average is used to guarantee freshness of the information. 
+
+=== RPL ===
+
+A first difference when we consider RPL, to CTP, the kind of structure used is different. In RPL we use a Graph, the features are: energy aware, small factor, lightweight resources and low overhead. Of course it should scale to thousands of smart objects, with high energy efficiency. Other desiderable features are auto-configuration and self-managing.
+
+A *proactive distance vector routing* specifies how to build a destination oriented acyclic graph (DODAG), rooted in the edge router, it supports multi-hop, and it select a route using a flexible metric; it finds paths with best ETX and avoid non encrypted links, or finds best path in terms on latency: policies can be used. In this way the rounting is supported on different types of links.
+
+The root is a edge router (*ER LowPAN Border Router*) sends a DIO message, the DIO will be propagated so that each node that receives it is able to estimate the distance. This kind of messages are implemented in ICMPv6. 
+
+Unicast can be used to perform *converge-casting*, but also point-to-point communication between devices can be implemented by letting the messages travels on the structure. 
+
+The DIO messagges are sent out dinamically, following a timer that is selected  based on how stable the system is: *trickle timers*, whetever an incosistency is detected then the timer is reset to small values. The RPL protocol is used on top of the 6LoWPAN adaptation layer.
+
+In the last years there was activities in the standards like Low Power wifi, Powerline, Z-wave, Bluetooth Low Energy. In reality there is no a single winner in the IoT world, so different standards have to be implemented togheter. There are some platforms that supports multiple standards and protocol stacks. 
+
+== Energy COnsumption ==
+
+In many applications limited resources of energy are used, but the system is required to stay on for decades, so duty cycle has to be used, periodically cuycling between ON/OFF states. In pratical terms there is a trade off between lifetime and the experienced latency. It's possible to use environmental energy to power the nodes, it is possible to make devices self sustaining? EH-WNS pose the basis for very long lasting operation with energy neutral protocols. Energy predictionis needed to mitigate the uncertain energy availability that is crucial for system palnning. There are *proactive* and *reactive* energy allocations. Different way of store energy can be used depending on the differents applciations. 
